@@ -299,6 +299,18 @@ class MeshLabFilterBase:
 
                     bpy.ops.object.mode_set(mode="OBJECT")
 
+                    # DESMARCA TUDO ANTES DE SAIR DO MODO DE EDIÇÃO
+                    bpy.ops.mesh.select_all(action="DESELECT")
+
+                    bpy.ops.object.mode_set(mode="OBJECT")
+
+                # PÓS-PROCESSAMENTO BLENDER: Reconstrói Ngons via Decimate Planar se ativado na UI
+                if getattr(props, "blender_ngon", False):
+                    mod = new_obj.modifiers.new(name="Planar_Decimate", type="DECIMATE")
+                    mod.decimate_type = "DISSOLVE"
+                    mod.angle_limit = math.radians(5.0)
+                    bpy.ops.object.modifier_apply(modifier=mod.name)
+
                 # AÇÃO SOBRE O OBJETO ANTERIOR (Keep, Hide, Delete)
                 if apply_prev_mesh_action in ["HIDE", "DELETE"]:
                     for obj in original_selected_objs:
@@ -355,6 +367,26 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
             "create_cone": (
                 filters_create.MESHLAB_PG_create_cone,
                 context.scene.ml_create_cone,
+            ),
+            "create_dodecahedron": (
+                filters_create.MESHLAB_PG_create_dodecahedron,
+                context.scene.ml_create_dodecahedron,
+            ),
+            "create_dodecahedron_sym": (
+                filters_create.MESHLAB_PG_create_dodecahedron_sym,
+                context.scene.ml_create_dodecahedron_sym,
+            ),
+            "create_icosahedron": (
+                filters_create.MESHLAB_PG_create_icosahedron,
+                context.scene.ml_create_icosahedron,
+            ),
+            "create_octahedron": (
+                filters_create.MESHLAB_PG_create_octahedron,
+                context.scene.ml_create_octahedron,
+            ),
+            "create_tetrahedron": (
+                filters_create.MESHLAB_PG_create_tetrahedron,
+                context.scene.ml_create_tetrahedron,
             ),
             "meshing_isotropic_explicit_remeshing": (
                 filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing,

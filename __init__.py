@@ -22,6 +22,11 @@ classes = (
     filters_create.MESHLAB_PG_create_torus,
     filters_create.MESHLAB_PG_create_annulus,
     filters_create.MESHLAB_PG_create_cone,
+    filters_create.MESHLAB_PG_create_dodecahedron,
+    filters_create.MESHLAB_PG_create_dodecahedron_sym,
+    filters_create.MESHLAB_PG_create_icosahedron,
+    filters_create.MESHLAB_PG_create_octahedron,
+    filters_create.MESHLAB_PG_create_tetrahedron,
     filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing,
     filters_generate.MESHLAB_PG_generate_resampled_uniform_mesh,
 )
@@ -56,6 +61,21 @@ def register():
     bpy.types.Scene.ml_create_cone = bpy.props.PointerProperty(
         type=filters_create.MESHLAB_PG_create_cone
     )
+    bpy.types.Scene.ml_create_dodecahedron = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_dodecahedron
+    )
+    bpy.types.Scene.ml_create_dodecahedron_sym = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_dodecahedron_sym
+    )
+    bpy.types.Scene.ml_create_icosahedron = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_icosahedron
+    )
+    bpy.types.Scene.ml_create_octahedron = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_octahedron
+    )
+    bpy.types.Scene.ml_create_tetrahedron = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_tetrahedron
+    )
     bpy.types.Scene.ml_meshing_isotropic_explicit_remeshing = bpy.props.PointerProperty(
         type=filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing
     )
@@ -76,5 +96,10 @@ def unregister():
     del bpy.types.Scene.ml_create_torus
     del bpy.types.Scene.ml_create_annulus
     del bpy.types.Scene.ml_create_cone
+    del bpy.types.Scene.ml_create_dodecahedron
+    del bpy.types.Scene.ml_create_dodecahedron_sym
+    del bpy.types.Scene.ml_create_icosahedron
+    del bpy.types.Scene.ml_create_octahedron
+    del bpy.types.Scene.ml_create_tetrahedron
     del bpy.types.Scene.ml_meshing_isotropic_explicit_remeshing
     del bpy.types.Scene.ml_generate_resampled_uniform_mesh

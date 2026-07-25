@@ -202,3 +202,47 @@ class MESHLAB_PG_create_cone(PropertyGroup, MeshLabFilterBase):
         description="Convert tris to quads.",
         default=True,
     )
+
+
+# ==============================================================================
+# Sólidos Platônicos (Sem parâmetros adicionais definidos via API)
+# ==============================================================================
+class MESHLAB_PG_create_dodecahedron(PropertyGroup, MeshLabFilterBase):
+    pymeshlab_filter = "create_dodecahedron"
+    requires_selection = False
+    shade_flat = True
+    remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
+
+    blender_ngon: BoolProperty(
+        name="Ngons",
+        description="Reconstructs planar faces (ngons) using a Decimate Planar modifier.",
+        default=True,
+    )
+
+
+class MESHLAB_PG_create_dodecahedron_sym(PropertyGroup, MeshLabFilterBase):
+    pymeshlab_filter = "create_dodecahedron_sym"
+    requires_selection = False
+    shade_flat = True
+    remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
+
+
+class MESHLAB_PG_create_icosahedron(PropertyGroup, MeshLabFilterBase):
+    pymeshlab_filter = "create_icosahedron"
+    requires_selection = False
+    shade_flat = True
+    remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
+
+
+class MESHLAB_PG_create_octahedron(PropertyGroup, MeshLabFilterBase):
+    pymeshlab_filter = "create_octahedron"
+    requires_selection = False
+    shade_flat = True
+    remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
+
+
+class MESHLAB_PG_create_tetrahedron(PropertyGroup, MeshLabFilterBase):
+    pymeshlab_filter = "create_tetrahedron"
+    requires_selection = False
+    shade_flat = True
+    remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
