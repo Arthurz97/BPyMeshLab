@@ -288,21 +288,24 @@ class MeshLabFilterBase:
                 if cls.shade_flat:
                     bpy.ops.object.shade_flat()
 
-                # PÓS-PROCESSAMENTO BLENDER: Converte triângulos em quads se ativado na UI
+                # PÓS-PROCESSAMENTO BLENDER: Converte triângulos em quads via BMesh (evita erros de contexto UI)
                 if getattr(props, "blender_quad", False):
-                    bpy.ops.object.mode_set(mode="EDIT")
-                    bpy.ops.mesh.select_all(action="SELECT")
-                    bpy.ops.mesh.tris_convert_to_quads()
+                    import bmesh
 
-                    # DESMARCA TUDO ANTES DE SAIR DO MODO DE EDIÇÃO
-                    bpy.ops.mesh.select_all(action="DESELECT")
+                    bm = bmesh.new()
+                    bm.from_mesh(new_obj.data)
 
-                    bpy.ops.object.mode_set(mode="OBJECT")
+                    # 40 graus é o valor padrão do Blender para Tris to Quads
+                    bmesh.ops.join_triangles(
+                        bm,
+                        faces=bm.faces,
+                        angle_face_threshold=math.radians(40.0),
+                        angle_shape_threshold=math.radians(40.0),
+                    )
 
-                    # DESMARCA TUDO ANTES DE SAIR DO MODO DE EDIÇÃO
-                    bpy.ops.mesh.select_all(action="DESELECT")
-
-                    bpy.ops.object.mode_set(mode="OBJECT")
+                    bm.to_mesh(new_obj.data)
+                    bm.free()
+                    new_obj.data.update()
 
                 # PÓS-PROCESSAMENTO BLENDER: Reconstrói Ngons via Decimate Planar se ativado na UI
                 if getattr(props, "blender_ngon", False):
@@ -387,6 +390,18 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
             "create_tetrahedron": (
                 filters_create.MESHLAB_PG_create_tetrahedron,
                 context.scene.ml_create_tetrahedron,
+            ),
+            "create_tetrahedron": (
+                filters_create.MESHLAB_PG_create_tetrahedron,
+                context.scene.ml_create_tetrahedron,
+            ),
+            "create_grid": (
+                filters_create.MESHLAB_PG_create_grid,
+                context.scene.ml_create_grid,
+            ),
+            "create_noisy_isosurface": (
+                filters_create.MESHLAB_PG_create_noisy_isosurface,
+                context.scene.ml_create_noisy_isosurface,
             ),
             "meshing_isotropic_explicit_remeshing": (
                 filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing,

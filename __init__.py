@@ -27,6 +27,8 @@ classes = (
     filters_create.MESHLAB_PG_create_icosahedron,
     filters_create.MESHLAB_PG_create_octahedron,
     filters_create.MESHLAB_PG_create_tetrahedron,
+    filters_create.MESHLAB_PG_create_grid,
+    filters_create.MESHLAB_PG_create_noisy_isosurface,
     filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing,
     filters_generate.MESHLAB_PG_generate_resampled_uniform_mesh,
 )
@@ -76,6 +78,12 @@ def register():
     bpy.types.Scene.ml_create_tetrahedron = bpy.props.PointerProperty(
         type=filters_create.MESHLAB_PG_create_tetrahedron
     )
+    bpy.types.Scene.ml_create_grid = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_grid
+    )
+    bpy.types.Scene.ml_create_noisy_isosurface = bpy.props.PointerProperty(
+        type=filters_create.MESHLAB_PG_create_noisy_isosurface
+    )
     bpy.types.Scene.ml_meshing_isotropic_explicit_remeshing = bpy.props.PointerProperty(
         type=filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing
     )
@@ -101,5 +109,7 @@ def unregister():
     del bpy.types.Scene.ml_create_icosahedron
     del bpy.types.Scene.ml_create_octahedron
     del bpy.types.Scene.ml_create_tetrahedron
+    del bpy.types.Scene.ml_create_grid
+    del bpy.types.Scene.ml_create_noisy_isosurface
     del bpy.types.Scene.ml_meshing_isotropic_explicit_remeshing
     del bpy.types.Scene.ml_generate_resampled_uniform_mesh
