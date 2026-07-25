@@ -186,6 +186,11 @@ class MeshLabFilterBase:
                     out_vertices = out_mesh.vertex_matrix()
                     out_faces = out_mesh.face_matrix()
 
+                    # NOVA EXTRAÇÃO: Vertex Quality (chamado internamente de 'Scalar' na API C++)
+                    out_quality = None
+                    if out_mesh.has_vertex_scalar():
+                        out_quality = out_mesh.vertex_scalar_array()
+
                     # Libera a memória C++ imediatamente após extrair as matrizes
                     ms.clear()
                     del ms
@@ -193,7 +198,9 @@ class MeshLabFilterBase:
 
                     # Constrói o novo objeto no Blender sem tocar no disco
                     temp_name = original_obj.name if original_obj else "Mesh"
-                    new_obj = utils.numpy_to_blender(out_vertices, out_faces, temp_name)
+                    new_obj = utils.numpy_to_blender(
+                        out_vertices, out_faces, temp_name, vertex_quality=out_quality
+                    )
 
                     # Linka o objeto gerado na cena atual e o define como ativo
                     context.collection.objects.link(new_obj)
@@ -417,6 +424,10 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
             "generate_plane_fitting_to_selection": (
                 filters_generate.MESHLAB_PG_generate_plane_fitting_to_selection,
                 context.scene.ml_generate_plane_fitting_to_selection,
+            ),
+            "create_fractal_terrain": (
+                filters_create.MESHLAB_PG_create_fractal_terrain,
+                context.scene.ml_create_fractal_terrain,
             ),
         }
 

@@ -17,6 +17,7 @@ UI_MAPPING = {
         "create_grid",
         "create_noisy_isosurface",
         "generate_plane_fitting_to_selection",
+        "create_fractal_terrain",
     ],
     "Remeshing, Simplification and Reconstruction": [
         "meshing_isotropic_explicit_remeshing",
@@ -38,7 +39,8 @@ FILTER_NAMES = {
     "create_tetrahedron": "Tetrahedron",
     "create_grid": "Grid Generator",
     "create_noisy_isosurface": "Noisy Isosurface",
-    "generate_plane_fitting_to_selection": "Plane Fitting to Selection",
+    "generate_plane_fitting_to_selection": "Fit a plane to selection",
+    "create_fractal_terrain": "Fractal Terrain",
     "meshing_isotropic_explicit_remeshing": "Remeshing: Isotropic Explicit Remeshing",
     "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
 }
@@ -58,6 +60,7 @@ FILTER_DESCRIPTIONS = {
     "create_grid": "Generate a new 2D Grid mesh with number of vertices on X and Y axis specified by user with absolute length/height.",
     "create_noisy_isosurface": "Create a isosurface perturbed by a noisy isosurface.",
     "generate_plane_fitting_to_selection": "Create a quad on the plane fitting the selection.",
+    "create_fractal_terrain": "Generates a fractal terrain perturbation. Recommended initial values -> fBM: Octaves 10, Lacunarity 2, Increment 1.2 | Standard: Octaves 8, Lacunarity 2, Offset 0.9 | Heterogeneous: Lacunarity 3, Offset 0.9, Gain 0.4 | Hybrid: Lacunarity 4, Increment 0.1, Offset 0.3 | Ridged: Lacunarity 4, Increment 0.5, Offset 0.9, Gain 2. Ref: Ebert et al. (2002) Texturing and Modeling.",
     "meshing_isotropic_explicit_remeshing": "Perform a explicit remeshing of a triangular mesh, by repeatedly applying edge flip, collapse, relax and refine operations.",
     "generate_resampled_uniform_mesh": "Create a new mesh that is a resampled version of the current one. The resampling is done by building a uniform volumetric representation where each voxel contains the signed distance from the original surface. The resampled surface is reconstructed using the marching cube algorithm over this volume.",
 }

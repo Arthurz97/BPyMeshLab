@@ -57,7 +57,7 @@ def blender_to_numpy(obj, extract_selection=False):
     return vertices_world, faces, v_color_matrix
 
 
-def numpy_to_blender(vertices, faces, original_name):
+def numpy_to_blender(vertices, faces, original_name, vertex_quality=None):
     """
     Reconstrói a geometria do PyMeshLab de volta para o Blender em um novo objeto.
     Utiliza o verdadeiro foreach_set para injeção massiva de memória (C-Level).
@@ -83,6 +83,13 @@ def numpy_to_blender(vertices, faces, original_name):
 
     # ATUALIZA A MALHA E GERA AS ARESTAS ANTES DE LIMPAR A SELEÇÃO
     mesh.update(calc_edges=True)
+
+    # Injeção Direta de Qualidade (Vertex Quality) como Atributo Blender
+    if vertex_quality is not None and len(vertex_quality) == num_verts:
+        quality_attr = mesh.attributes.new(name="quality", type="FLOAT", domain="POINT")
+        quality_attr.data.foreach_set(
+            "value", np.array(vertex_quality, dtype=np.float32).ravel()
+        )
 
     # 3. Limpeza de Seleção Absoluta (Vértices, Faces E Arestas)
     mesh.vertices.foreach_set("select", np.zeros(num_verts, dtype=bool))
