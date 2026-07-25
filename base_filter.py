@@ -249,9 +249,12 @@ class MeshLabFilterBase:
                     new_obj.data.transform(original_obj.matrix_world.inverted())
                     new_obj.matrix_world = original_obj.matrix_world.copy()
 
-                    # NOMEAÇÃO AUTOMÁTICA (Filtros de edição):
-                    base_name = original_obj.name.split("_pymeshlab")[0]
-                    new_obj.name = f"{base_name}_pymeshlab"
+                    # NOMEAÇÃO AUTOMÁTICA (Filtros de edição ou geração):
+                    if hasattr(cls, "custom_name") and cls.custom_name:
+                        new_obj.name = f"{cls.custom_name}_pymeshlab"
+                    else:
+                        base_name = original_obj.name.split("_pymeshlab")[0]
+                        new_obj.name = f"{base_name}_pymeshlab"
                 else:
                     # NOMEAÇÃO AUTOMÁTICA E ROTAÇÃO PARA PRIMITIVAS (Filtros de Criação)
                     obj_name = cls.pymeshlab_filter.replace("create_", "").title()
@@ -410,6 +413,10 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
             "generate_resampled_uniform_mesh": (
                 filters_generate.MESHLAB_PG_generate_resampled_uniform_mesh,
                 context.scene.ml_generate_resampled_uniform_mesh,
+            ),
+            "generate_plane_fitting_to_selection": (
+                filters_generate.MESHLAB_PG_generate_plane_fitting_to_selection,
+                context.scene.ml_generate_plane_fitting_to_selection,
             ),
         }
 

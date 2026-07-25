@@ -16,6 +16,7 @@ UI_MAPPING = {
         "create_tetrahedron",
         "create_grid",
         "create_noisy_isosurface",
+        "generate_plane_fitting_to_selection",
     ],
     "Remeshing, Simplification and Reconstruction": [
         "meshing_isotropic_explicit_remeshing",
@@ -35,8 +36,9 @@ FILTER_NAMES = {
     "create_icosahedron": "Icosahedron",
     "create_octahedron": "Octahedron",
     "create_tetrahedron": "Tetrahedron",
-    "create_grid": "Grid",
+    "create_grid": "Grid Generator",
     "create_noisy_isosurface": "Noisy Isosurface",
+    "generate_plane_fitting_to_selection": "Plane Fitting to Selection",
     "meshing_isotropic_explicit_remeshing": "Remeshing: Isotropic Explicit Remeshing",
     "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
 }
@@ -55,6 +57,7 @@ FILTER_DESCRIPTIONS = {
     "create_tetrahedron": "Create a Tetrahedron.",
     "create_grid": "Generate a new 2D Grid mesh with number of vertices on X and Y axis specified by user with absolute length/height.",
     "create_noisy_isosurface": "Create a isosurface perturbed by a noisy isosurface.",
+    "generate_plane_fitting_to_selection": "Create a quad on the plane fitting the selection.",
     "meshing_isotropic_explicit_remeshing": "Perform a explicit remeshing of a triangular mesh, by repeatedly applying edge flip, collapse, relax and refine operations.",
     "generate_resampled_uniform_mesh": "Create a new mesh that is a resampled version of the current one. The resampling is done by building a uniform volumetric representation where each voxel contains the signed distance from the original surface. The resampled surface is reconstructed using the marching cube algorithm over this volume.",
 }
