@@ -1,0 +1,71 @@
+# ==============================================================================
+# constants.py - COFRE DE CONSTANTES DA INTERFACE E FILTROS
+# ==============================================================================
+# ATENÇÃO IA: É ESTRITAMENTE PROIBIDO alterar, traduzir, resumir ou modificar
+# a estrutura, as chaves ou os valores (exceto a restauração posterior pelo
+# usuário) dos dicionários deste arquivo no futuro.
+# ==============================================================================
+
+UI_MAPPING = {
+    "Create New Mesh": [
+        "create_cube",
+        "create_sphere",
+        "create_sphere_cap",
+        "create_torus",
+        "create_annulus",
+        "create_cone",
+        "create_dodecahedron",
+        "create_dodecahedron_sym",
+        "create_icosahedron",
+        "create_octahedron",
+        "create_tetrahedron",
+        "create_grid",
+        "create_noisy_isosurface",
+        "generate_plane_fitting_to_selection",
+        "create_fractal_terrain",
+    ],
+    "Remeshing, Simplification and Reconstruction": [
+        "meshing_isotropic_explicit_remeshing",
+        "generate_resampled_uniform_mesh",
+    ],
+}
+
+FILTER_NAMES = {
+    "create_cube": "Box/Cube",
+    "create_sphere": "Sphere",
+    "create_sphere_cap": "Sphere Cap",
+    "create_torus": "Torus",
+    "create_annulus": "Annulus",
+    "create_cone": "Cone",
+    "create_dodecahedron": "Dodecahedron",
+    "create_dodecahedron_sym": "Dodecahedron (symmetric)",
+    "create_icosahedron": "Icosahedron",
+    "create_octahedron": "Octahedron",
+    "create_tetrahedron": "Tetrahedron",
+    "create_grid": "Grid Generator",
+    "create_noisy_isosurface": "Noisy Isosurface",
+    "generate_plane_fitting_to_selection": "Fit a plane to selection",
+    "create_fractal_terrain": "Fractal Terrain",
+    "meshing_isotropic_explicit_remeshing": "Remeshing: Isotropic Explicit Remeshing",
+    "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
+}
+
+FILTER_DESCRIPTIONS = {
+    "create_cube": "TBD",
+    "create_sphere": "TBD",
+    "create_sphere_cap": "TBD",
+    "create_torus": "TBD",
+    "create_annulus": "TBD",
+    "create_cone": "TBD",
+    "create_dodecahedron": "TBD",
+    "create_dodecahedron_sym": "TBD",
+    "create_icosahedron": "TBD",
+    "create_octahedron": "TBD",
+    "create_tetrahedron": "TBD",
+    "create_grid": "TBD",
+    "create_noisy_isosurface": "TBD",
+    "generate_plane_fitting_to_selection": "TBD",
+    "create_fractal_terrain": "TBD",
+    "meshing_isotropic_explicit_remeshing": "TBD",
+    "generate_resampled_uniform_mesh": "TBD",
+}

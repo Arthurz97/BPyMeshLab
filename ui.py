@@ -1,5 +1,5 @@
 import bpy
-from .preferences import UI_MAPPING, FILTER_NAMES, FILTER_DESCRIPTIONS
+from .constants import UI_MAPPING, FILTER_NAMES, FILTER_DESCRIPTIONS
 
 
 class MESHLAB_OT_set_filter(bpy.types.Operator):

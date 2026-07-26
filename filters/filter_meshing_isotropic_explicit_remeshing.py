@@ -1,13 +1,7 @@
 import bpy
-import math
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
-
-# ==============================================================================
-# Arquivo criado baseado no nome das classes da api do PyMeshLab.
-# Filtros que exigem seleção de malhas e cálculos de bounding box.
-# ==============================================================================
 
 
 class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilterBase):
@@ -34,8 +28,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         description="If checked the remeshing operations will be applied only to the selected faces.",
         default=False,
     )
-
-    # Parâmetros com Subtype de Distância real no Blender. Serão convertidos invisivelmente para % no base_filter.
     targetlen: FloatProperty(
         name="Target Length",
         description="Sets the absolute target length for the remeshed mesh edges.",
@@ -45,7 +37,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         min=0.0001,
         soft_min=0.01,
     )
-
     featuredeg: FloatProperty(
         name="Crease Angle (°)",
         description="Minimum angle between faces of the original to consider the shared edge as a feature to be preserved.",
@@ -60,7 +51,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         description="If toggled each local operation must deviate from original mesh by [Max. surface distance].",
         default=False,
     )
-
     maxsurfdist: FloatProperty(
         name="Max. Surface Distance",
         description="Maximal absolute surface deviation allowed for each local operation.",
@@ -69,7 +59,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         default=0.01,
         min=0.0,
     )
-
     splitflag: BoolProperty(
         name="Refine Step",
         description="If checked the remeshing operations will include a refine step.",

@@ -353,89 +353,16 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
         return context.area and context.area.type == "VIEW_3D"
 
     def execute(self, context):
-        from .filters import filters_create, filters_meshing, filters_generate
-
-        # Mapeamento estrito das classes de filtro ativadas pelo Menu UI
-        mapping = {
-            "create_cube": (
-                filters_create.MESHLAB_PG_create_cube,
-                context.scene.ml_create_cube,
-            ),
-            "create_sphere": (
-                filters_create.MESHLAB_PG_create_sphere,
-                context.scene.ml_create_sphere,
-            ),
-            "create_sphere_cap": (
-                filters_create.MESHLAB_PG_create_sphere_cap,
-                context.scene.ml_create_sphere_cap,
-            ),
-            "create_torus": (
-                filters_create.MESHLAB_PG_create_torus,
-                context.scene.ml_create_torus,
-            ),
-            "create_annulus": (
-                filters_create.MESHLAB_PG_create_annulus,
-                context.scene.ml_create_annulus,
-            ),
-            "create_cone": (
-                filters_create.MESHLAB_PG_create_cone,
-                context.scene.ml_create_cone,
-            ),
-            "create_dodecahedron": (
-                filters_create.MESHLAB_PG_create_dodecahedron,
-                context.scene.ml_create_dodecahedron,
-            ),
-            "create_dodecahedron_sym": (
-                filters_create.MESHLAB_PG_create_dodecahedron_sym,
-                context.scene.ml_create_dodecahedron_sym,
-            ),
-            "create_icosahedron": (
-                filters_create.MESHLAB_PG_create_icosahedron,
-                context.scene.ml_create_icosahedron,
-            ),
-            "create_octahedron": (
-                filters_create.MESHLAB_PG_create_octahedron,
-                context.scene.ml_create_octahedron,
-            ),
-            "create_tetrahedron": (
-                filters_create.MESHLAB_PG_create_tetrahedron,
-                context.scene.ml_create_tetrahedron,
-            ),
-            "create_tetrahedron": (
-                filters_create.MESHLAB_PG_create_tetrahedron,
-                context.scene.ml_create_tetrahedron,
-            ),
-            "create_grid": (
-                filters_create.MESHLAB_PG_create_grid,
-                context.scene.ml_create_grid,
-            ),
-            "create_noisy_isosurface": (
-                filters_create.MESHLAB_PG_create_noisy_isosurface,
-                context.scene.ml_create_noisy_isosurface,
-            ),
-            "meshing_isotropic_explicit_remeshing": (
-                filters_meshing.MESHLAB_PG_meshing_isotropic_explicit_remeshing,
-                context.scene.ml_meshing_isotropic_explicit_remeshing,
-            ),
-            "generate_resampled_uniform_mesh": (
-                filters_generate.MESHLAB_PG_generate_resampled_uniform_mesh,
-                context.scene.ml_generate_resampled_uniform_mesh,
-            ),
-            "generate_plane_fitting_to_selection": (
-                filters_generate.MESHLAB_PG_generate_plane_fitting_to_selection,
-                context.scene.ml_generate_plane_fitting_to_selection,
-            ),
-            "create_fractal_terrain": (
-                filters_create.MESHLAB_PG_create_fractal_terrain,
-                context.scene.ml_create_fractal_terrain,
-            ),
-        }
-
-        if self.filter_id not in mapping:
-            self.report({"ERROR"}, "Filtro mapeado não existe na arquitetura.")
+        # A nova arquitetura busca a classe e as propriedades mapeadas dinamicamente
+        prop_name = f"ml_{self.filter_id}"
+        if not hasattr(context.scene, prop_name):
+            self.report(
+                {"ERROR"}, f"Filtro '{self.filter_id}' não existe no registro dinâmico."
+            )
             return {"CANCELLED"}
 
-        cls_def, props = mapping[self.filter_id]
+        props = getattr(context.scene, prop_name)
+        cls_def = type(props)  # Recupera a classe mestra/filtro instanciada no Blender
 
         # ---- INÍCIO DO CRONÔMETRO ----
         start_time = time.perf_counter()
