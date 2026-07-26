@@ -90,3 +90,8 @@ class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
         description="Convert tris to quads.",
         default=True,
     )
+    blender_smooth: BoolProperty(
+        name="Shade Smooth",
+        description="Render and display faces smooth, using interpolated vertex normals.",
+        default=False,
+    )

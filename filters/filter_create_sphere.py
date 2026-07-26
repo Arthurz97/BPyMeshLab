@@ -1,6 +1,6 @@
 import bpy
 from bpy.types import PropertyGroup
-from bpy.props import FloatProperty, IntProperty
+from bpy.props import FloatProperty, IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
 
 
@@ -24,4 +24,9 @@ class MESHLAB_PG_create_sphere(PropertyGroup, MeshLabFilterBase):
         default=3,
         min=0,
         max=8,
+    )
+    blender_smooth: BoolProperty(
+        name="Shade Smooth",
+        description="Render and display faces smooth, using interpolated vertex normals.",
+        default=False,
     )

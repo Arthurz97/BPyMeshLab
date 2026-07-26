@@ -294,8 +294,10 @@ class MeshLabFilterBase:
                                 new_obj.data.attributes[attr]
                             )
 
-                # SHADE FLAT: Aplicável a primitivas criadas ou malhas onde normais suaves causem artefatos visuais.
-                if cls.shade_flat:
+                # SHADE FLAT / SMOOTH: Controle de suavização das normais no Blender.
+                if getattr(props, "blender_smooth", False):
+                    bpy.ops.object.shade_smooth(keep_sharp_edges=True)
+                elif cls.shade_flat:
                     bpy.ops.object.shade_flat()
 
                 # PÓS-PROCESSAMENTO BLENDER: Converte triângulos em quads via BMesh (evita erros de contexto UI)

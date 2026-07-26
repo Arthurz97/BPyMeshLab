@@ -72,3 +72,8 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
         description="If true a not signed distance field is computed. In this case you have to choose a not zero Offset and a double surface is built around the original surface, inside and outside. Is useful to convert thin floating surfaces into solid, thick meshes.",
         default=False,
     )
+    blender_smooth: BoolProperty(
+        name="Shade Smooth",
+        description="Render and display faces smooth, using interpolated vertex normals.",
+        default=False,
+    )

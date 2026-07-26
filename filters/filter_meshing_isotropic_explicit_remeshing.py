@@ -84,3 +84,8 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         description="If checked the remeshing operations will include a step to reproject the mesh vertices on the original surface.",
         default=True,
     )
+    blender_smooth: BoolProperty(
+        name="Shade Smooth",
+        description="Render and display faces smooth, using interpolated vertex normals.",
+        default=False,
+    )
