@@ -85,11 +85,6 @@ class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
         description="Saves the perturbation value as a generic FLOAT attribute on vertices (can be accessed via Geometry/Shader nodes).",
         default=False,
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )
     blender_smooth: BoolProperty(
         name="Shade Smooth",
         description="Render and display faces smooth, using interpolated vertex normals.",

@@ -9,6 +9,7 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
     requires_selection = True
     shade_flat = True
     remove_attributes = ["quality", "texture_u", "texture_v", "sharp_face", "Col"]
+    prefer_ply_disk = True
     percentage_parameters = ["targetlen", "maxsurfdist"]
     angle_parameters = ["featuredeg"]
 

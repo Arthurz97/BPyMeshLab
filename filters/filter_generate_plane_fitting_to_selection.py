@@ -62,8 +62,3 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
         ],
         default="0",
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )

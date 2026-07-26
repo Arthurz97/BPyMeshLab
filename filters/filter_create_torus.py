@@ -38,11 +38,6 @@ class MESHLAB_PG_create_torus(PropertyGroup, MeshLabFilterBase):
         default=12,
         min=3,
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )
     blender_smooth: BoolProperty(
         name="Shade Smooth",
         description="Render and display faces smooth, using interpolated vertex normals.",

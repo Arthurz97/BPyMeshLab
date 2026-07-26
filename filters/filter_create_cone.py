@@ -40,8 +40,3 @@ class MESHLAB_PG_create_cone(PropertyGroup, MeshLabFilterBase):
         default=36,
         min=3,
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )

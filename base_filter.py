@@ -54,7 +54,8 @@ class MeshLabFilterBase:
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                output_path = os.path.join(tmpdir, "output.ply")
+                # Mudança para .obj para preservar Quads no Motor de Disco
+                output_path = os.path.join(tmpdir, "output.obj")
                 ms = pymeshlab.MeshSet()
 
                 # ==========================================================
@@ -184,9 +185,29 @@ class MeshLabFilterBase:
                     # Extrai as matrizes processadas diretamente da memória RAM
                     out_mesh = ms.current_mesh()
                     out_vertices = out_mesh.vertex_matrix()
-                    out_faces = out_mesh.face_matrix()
 
-                    # NOVA EXTRAÇÃO: Vertex Quality (chamado internamente de 'Scalar' na API C++)
+                    # O método polygonal_face_list() retorna a lista real de Quads/Ngons nativa do PyMeshLab.
+                    # Extração Inteligente: Avalia se usa Ngons ou Triângulos nativos
+                    out_faces = []
+                    use_polygons = False
+
+                    if hasattr(out_mesh, "polygonal_face_list"):
+                        try:
+                            poly_list = out_mesh.polygonal_face_list()
+                            if isinstance(poly_list, list) and len(poly_list) > 0:
+                                # Checa se os polígonos englobam TODOS os vértices.
+                                # Se sobrar vértice de fora (como os centros do Dodecaedro Sym), aborta os ngons.
+                                used_verts = len(np.unique(np.concatenate(poly_list)))
+                                if used_verts == len(out_vertices):
+                                    out_faces = poly_list
+                                    use_polygons = True
+                        except Exception:
+                            pass
+
+                    # Fallback de segurança para a matriz de triângulos bruta
+                    if not use_polygons:
+                        out_faces = out_mesh.face_matrix()
+
                     out_quality = None
                     if out_mesh.has_vertex_scalar():
                         out_quality = out_mesh.vertex_scalar_array()
@@ -209,10 +230,15 @@ class MeshLabFilterBase:
                     context.view_layer.objects.active = new_obj
 
                 elif engine == "DISK":
-                    # Salva o resultado temporariamente no disco
-                    ms.save_current_mesh(output_path)
+                    # Resgata a flag localmente para evitar erro de escopo no Pylance
+                    use_ply = getattr(cls, "prefer_ply_disk", False)
 
-                    # SEGURANÇA DE FALHA E LIMPEZA DE MEMÓRIA (C++)
+                    # Salva o resultado temporariamente no disco
+                    if use_ply:
+                        ms.save_current_mesh(output_path)
+                    else:
+                        # Força a API C++ a preservar Quads/Ngons ao invés de triangular no OBJ
+                        ms.save_current_mesh(output_path, save_polygonal=True)
                     ms.clear()
                     del ms
                     gc.collect()
@@ -223,8 +249,8 @@ class MeshLabFilterBase:
                             "O motor C++ falhou silenciosamente e nenhuma malha foi gerada no disco.",
                         )
 
-                    # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo
-                    bpy.ops.wm.ply_import(filepath=output_path)
+                    # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo de OBJ
+                    bpy.ops.wm.obj_import(filepath=output_path)
 
                     if context.selected_objects:
                         new_obj = context.selected_objects[0]
@@ -318,13 +344,6 @@ class MeshLabFilterBase:
                     bm.to_mesh(new_obj.data)
                     bm.free()
                     new_obj.data.update()
-
-                # PÓS-PROCESSAMENTO BLENDER: Reconstrói Ngons via Decimate Planar se ativado na UI
-                if getattr(props, "blender_ngon", False):
-                    mod = new_obj.modifiers.new(name="Planar_Decimate", type="DECIMATE")
-                    mod.decimate_type = "DISSOLVE"
-                    mod.angle_limit = math.radians(5.0)
-                    bpy.ops.object.modifier_apply(modifier=mod.name)
 
                 # AÇÃO SOBRE O OBJETO ANTERIOR (Keep, Hide, Delete)
                 if apply_prev_mesh_action in ["HIDE", "DELETE"]:

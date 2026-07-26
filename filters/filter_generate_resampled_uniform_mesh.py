@@ -10,6 +10,7 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
     requires_selection = True
     shade_flat = True
     remove_attributes = ["custom_normal", "sharp_edge", "sharp_face"]
+    prefer_ply_disk = True
     percentage_parameters = ["cellsize", "offset"]
 
     def is_property_hidden(self, key):

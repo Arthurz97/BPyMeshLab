@@ -32,8 +32,3 @@ class MESHLAB_PG_create_annulus(PropertyGroup, MeshLabFilterBase):
         default=32,
         min=3,
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )

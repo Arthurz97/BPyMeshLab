@@ -25,8 +25,3 @@ class MESHLAB_PG_create_cube(PropertyGroup, MeshLabFilterBase):
         min=0.001,
         max=5000.0,
     )
-    blender_quad: BoolProperty(
-        name="Quad",
-        description="Convert tris to quads.",
-        default=True,
-    )
