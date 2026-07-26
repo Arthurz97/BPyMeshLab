@@ -27,6 +27,7 @@ UI_MAPPING = {
     "Remeshing, Simplification and Reconstruction": [
         "meshing_isotropic_explicit_remeshing",
         "generate_resampled_uniform_mesh",
+        "generate_convex_hull",
     ],
 }
 
@@ -48,6 +49,7 @@ FILTER_NAMES = {
     "create_fractal_terrain": "Fractal Terrain",
     "meshing_isotropic_explicit_remeshing": "Remeshing: Isotropic Explicit Remeshing",
     "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
+    "generate_convex_hull": "Convex Hull",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -68,4 +70,5 @@ FILTER_DESCRIPTIONS = {
     "create_fractal_terrain": "TBD",
     "meshing_isotropic_explicit_remeshing": "TBD",
     "generate_resampled_uniform_mesh": "TBD",
+    "generate_convex_hull": "TBD",
 }
