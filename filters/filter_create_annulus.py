@@ -10,6 +10,13 @@ class MESHLAB_PG_create_annulus(PropertyGroup, MeshLabFilterBase):
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
 
+    # Controle de I/O
+    prefer_ply_disk = True
+
+    # Pós-processamento nativo C++
+    post_filter_on_true = "meshing_tri_to_quad_dominant"
+    post_filter_on_false = None
+
     internalradius: FloatProperty(
         name="Internal Radius",
         description="Internal Radius of the annulus",
@@ -31,4 +38,9 @@ class MESHLAB_PG_create_annulus(PropertyGroup, MeshLabFilterBase):
         description="Number of the sides of the poligonal approximation of the annulus",
         default=32,
         min=3,
+    )
+    blender_quad: BoolProperty(
+        name="Quad",
+        description="Outputs the final mesh using quads instead of triangles.",
+        default=True,
     )

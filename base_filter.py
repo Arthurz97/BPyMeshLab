@@ -177,6 +177,24 @@ class MeshLabFilterBase:
                 ms.apply_filter(cls.pymeshlab_filter, **params)
 
                 # ==========================================================
+                # PÓS-PROCESSAMENTO NATIVO (C++) - Controle de Malha (Quad/Tri)
+                # ==========================================================
+                # Permite que cada filtro defina sua própria lógica baseada no estado do checkbox
+                if hasattr(props, "blender_quad"):
+                    if props.blender_quad:
+                        if (
+                            hasattr(cls, "post_filter_on_true")
+                            and cls.post_filter_on_true
+                        ):
+                            ms.apply_filter(cls.post_filter_on_true)
+                    else:
+                        if (
+                            hasattr(cls, "post_filter_on_false")
+                            and cls.post_filter_on_false
+                        ):
+                            ms.apply_filter(cls.post_filter_on_false)
+
+                # ==========================================================
                 # RECUPERAÇÃO DA GEOMETRIA: MEMÓRIA vs DISCO
                 # ==========================================================
                 new_obj = None
@@ -325,25 +343,6 @@ class MeshLabFilterBase:
                     bpy.ops.object.shade_smooth(keep_sharp_edges=True)
                 elif cls.shade_flat:
                     bpy.ops.object.shade_flat()
-
-                # PÓS-PROCESSAMENTO BLENDER: Converte triângulos em quads via BMesh (evita erros de contexto UI)
-                if getattr(props, "blender_quad", False):
-                    import bmesh
-
-                    bm = bmesh.new()
-                    bm.from_mesh(new_obj.data)
-
-                    # 40 graus é o valor padrão do Blender para Tris to Quads
-                    bmesh.ops.join_triangles(
-                        bm,
-                        faces=bm.faces,
-                        angle_face_threshold=math.radians(40.0),
-                        angle_shape_threshold=math.radians(40.0),
-                    )
-
-                    bm.to_mesh(new_obj.data)
-                    bm.free()
-                    new_obj.data.update()
 
                 # AÇÃO SOBRE O OBJETO ANTERIOR (Keep, Hide, Delete)
                 if apply_prev_mesh_action in ["HIDE", "DELETE"]:
