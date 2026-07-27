@@ -10,9 +10,6 @@ class MESHLAB_PG_create_annulus(PropertyGroup, MeshLabFilterBase):
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
 
-    # Controle de I/O
-    prefer_ply_disk = True
-
     # Pós-processamento nativo C++
     post_filter_on_true = "meshing_tri_to_quad_dominant"
     post_filter_on_false = None

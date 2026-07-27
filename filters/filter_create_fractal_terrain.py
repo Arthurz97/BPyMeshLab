@@ -11,6 +11,10 @@ class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
     remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
     custom_name = "FractalTerrain"
 
+    # Pós-processamento nativo C++
+    post_filter_on_true = "meshing_tri_to_quad_dominant"
+    post_filter_on_false = None
+
     @classmethod
     def pre_process_parameters(cls, params, props):
         params["algorithm"] = int(props.algorithm)
@@ -89,4 +93,9 @@ class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
         name="Shade Smooth",
         description="Render and display faces smooth, using interpolated vertex normals.",
         default=False,
+    )
+    blender_quad: BoolProperty(
+        name="Quad",
+        description="Outputs the final mesh using quads instead of triangles.",
+        default=True,
     )

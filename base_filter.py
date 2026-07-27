@@ -54,8 +54,14 @@ class MeshLabFilterBase:
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                # Mudança para .obj para preservar Quads no Motor de Disco
-                output_path = os.path.join(tmpdir, "output.obj")
+                # Checa a preferência do filtro para definir o formato de saída do motor C++
+                use_ply = getattr(cls, "prefer_ply_disk", False)
+
+                if use_ply:
+                    output_path = os.path.join(tmpdir, "output.ply")
+                else:
+                    output_path = os.path.join(tmpdir, "output.obj")
+
                 ms = pymeshlab.MeshSet()
 
                 # ==========================================================
@@ -267,8 +273,11 @@ class MeshLabFilterBase:
                             "O motor C++ falhou silenciosamente e nenhuma malha foi gerada no disco.",
                         )
 
-                    # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo de OBJ
-                    bpy.ops.wm.obj_import(filepath=output_path)
+                    # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo correspondente
+                    if use_ply:
+                        bpy.ops.wm.ply_import(filepath=output_path)
+                    else:
+                        bpy.ops.wm.obj_import(filepath=output_path)
 
                     if context.selected_objects:
                         new_obj = context.selected_objects[0]
