@@ -3,5 +3,8 @@
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none",
         "reportInvalidTypeForm": "none"
+    },
+    "files.exclude": {
+        "**/dev": true
     }
 }
