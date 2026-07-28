@@ -17,6 +17,17 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
         if "selectedonly" in params:
             del params["selectedonly"]
 
+        # Lógica Condicional RAM vs DISCO para Quad/Tri
+        engine = bpy.context.scene.meshlab_prefs.processing_engine
+        if engine == "DISK":
+            # No Disco, o PyMeshLab quebra em Tris. Reconstruímos os Quads se o usuário pedir.
+            cls.post_filter_on_true = "meshing_tri_to_quad_dominant"
+            cls.post_filter_on_false = None
+        else:
+            # Na Memória, já nasce em Quads. Quebramos em Tris se a opção for desmarcada.
+            cls.post_filter_on_true = None
+            cls.post_filter_on_false = "meshing_poly_to_tri"
+
     selectedonly: BoolProperty(
         default=True,
         options={"HIDDEN"},
@@ -61,4 +72,9 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
             ("4", "YX Parallel", "Parallel to YX."),
         ],
         default="0",
+    )
+    blender_quad: BoolProperty(
+        name="Quad",
+        description="Outputs the final mesh using quads instead of triangles.",
+        default=True,
     )
