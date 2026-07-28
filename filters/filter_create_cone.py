@@ -28,12 +28,11 @@ class MESHLAB_PG_create_cone(PropertyGroup, MeshLabFilterBase):
 
                 # Tris to Quads (Limite de 40 graus e influência topológica = 2.0)
                 # Mantém as laterais em Quad e poupa os polos (base/topo) sem destruir a curvatura
-                angle_40 = math.radians(40.0)
                 bmesh.ops.join_triangles(
                     bm,
                     faces=bm.faces,
-                    angle_face_threshold=angle_40,
-                    angle_shape_threshold=angle_40,
+                    angle_face_threshold=math.radians(40.0),
+                    angle_shape_threshold=math.radians(40.0),
                     topology_influence=2.0,
                 )
 
