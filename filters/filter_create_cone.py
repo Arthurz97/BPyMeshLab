@@ -10,9 +10,39 @@ class MESHLAB_PG_create_cone(PropertyGroup, MeshLabFilterBase):
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge"]
 
-    # Pós-processamento nativo C++
-    post_filter_on_true = "meshing_tri_to_quad_dominant"
-    post_filter_on_false = None
+    # Removemos as regras C++ (post_filter_on_true) pois o algoritmo do PyMeshLab erra a topologia.
+    @classmethod
+    def apply_filter(cls, context, props):
+        # 1. Executa a geração original do PyMeshLab em triângulos chamando a classe base
+        status, msg = super().apply_filter(context, props)
+
+        # 2. Intercepta o resultado no Blender para aplicar a topologia Quad via BMesh
+        if status == "FINISHED" and getattr(props, "blender_quad", False):
+            obj = context.view_layer.objects.active
+            if obj and obj.type == "MESH":
+                import bmesh
+                import math
+
+                bm = bmesh.new()
+                bm.from_mesh(obj.data)
+
+                # Tris to Quads (Limite de 40 graus e influência topológica = 2.0)
+                # Mantém as laterais em Quad e poupa os polos (base/topo) sem destruir a curvatura
+                angle_40 = math.radians(40.0)
+                bmesh.ops.join_triangles(
+                    bm,
+                    faces=bm.faces,
+                    angle_face_threshold=angle_40,
+                    angle_shape_threshold=angle_40,
+                    topology_influence=2.0,
+                )
+
+                # Devolve a malha corrigida para o objeto
+                bm.to_mesh(obj.data)
+                bm.free()
+                obj.data.update()
+
+        return status, msg
 
     r0: FloatProperty(
         name="Radius 1",
