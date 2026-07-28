@@ -25,7 +25,7 @@ class MESHLAB_PG_create_cube(PropertyGroup, MeshLabFilterBase):
         description="Scales the new mesh.",
         subtype="DISTANCE",
         unit="LENGTH",
-        default=1.0,
+        default=2.0,
         min=0.001,
         max=5000.0,
     )
