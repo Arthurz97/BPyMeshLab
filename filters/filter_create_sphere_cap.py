@@ -10,6 +10,7 @@ class MESHLAB_PG_create_sphere_cap(PropertyGroup, MeshLabFilterBase):
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge"]
     angle_parameters = ["angle"]
+    prefer_ply_disk = True
 
     angle: FloatProperty(
         name="Angle (°)",

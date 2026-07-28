@@ -9,6 +9,7 @@ class MESHLAB_PG_create_noisy_isosurface(PropertyGroup, MeshLabFilterBase):
     requires_selection = False
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
+    prefer_ply_disk = True
 
     resolution: IntProperty(
         name="Grid Resolution",
