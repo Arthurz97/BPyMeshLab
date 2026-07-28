@@ -7,6 +7,7 @@ from ..base_filter import MeshLabFilterBase
 class MESHLAB_PG_create_sphere_cap(PropertyGroup, MeshLabFilterBase):
     pymeshlab_filter = "create_sphere_cap"
     requires_selection = False
+    ignore_selection_count = True
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge"]
     angle_parameters = ["angle"]

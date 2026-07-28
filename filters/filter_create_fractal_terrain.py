@@ -7,6 +7,7 @@ from ..base_filter import MeshLabFilterBase
 class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
     pymeshlab_filter = "create_fractal_terrain"
     requires_selection = False
+    ignore_selection_count = True
     shade_flat = True
     remove_attributes = ["custom_normal", "material_index", "sharp_edge", "sharp_face"]
     custom_name = "FractalTerrain"

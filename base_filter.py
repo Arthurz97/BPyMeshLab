@@ -8,6 +8,7 @@ from . import utils
 class MeshLabFilterBase:
     pymeshlab_filter = ""
     requires_selection = False
+    ignore_selection_count = False
     shade_flat = False
     remove_attributes = []
 
@@ -24,7 +25,9 @@ class MeshLabFilterBase:
 
         # TRAVA DE MULTI-SELEÇÃO: O PyMeshLab em scripts simples pode se perder com múltiplos inputs.
         # Esta trava garante que a lógica de nomeação e matriz funcione perfeitamente sobre 1 único alvo.
-        if len(original_selected_objs) > 1:
+        if len(original_selected_objs) > 1 and not getattr(
+            cls, "ignore_selection_count", False
+        ):
             return (
                 "CANCELLED",
                 "Múltiplas seleções não são suportadas. Selecione apenas 1 objeto.",

@@ -7,6 +7,7 @@ from ..base_filter import MeshLabFilterBase
 class MESHLAB_PG_create_cube(PropertyGroup, MeshLabFilterBase):
     pymeshlab_filter = "create_cube"
     requires_selection = False
+    ignore_selection_count = True
     shade_flat = True
     remove_attributes = [
         "material_index",
