@@ -43,6 +43,7 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
         # MODO BATCH
         if getattr(props, "blender_batch", False) and len(original_objs) > 1:
             overall_status = "FINISHED"
+            error_msg = ""
 
             # Mascara a ação original para o base_filter não deletar os objetos originais no meio do loop
             prefs = context.scene.meshlab_prefs
@@ -94,6 +95,7 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
 
                 if status != "FINISHED":
                     overall_status = status
+                    error_msg = msg
 
                 # 4. Limpa o objeto temporário usado de ponte
                 if new_obj.name in bpy.data.objects:
@@ -114,6 +116,9 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if overall_status != "FINISHED":
+                return overall_status, error_msg
 
             return (
                 overall_status,
@@ -172,8 +177,20 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
 
             prefs.global_prev_mesh_action = original_action
 
-            if temp_merged and temp_merged.name in bpy.data.objects:
-                bpy.data.objects.remove(temp_merged, do_unlink=True)
+            if temp_merged:
+                try:
+                    if temp_merged.name in bpy.data.objects:
+                        bpy.data.objects.remove(temp_merged, do_unlink=True)
+                except ReferenceError:
+                    pass
+
+            # Limpeza de segurança (com proteção ReferenceError para objetos já deletados pelo Join)
+            for obj in temp_objs:
+                try:
+                    if obj.name in bpy.data.objects:
+                        bpy.data.objects.remove(obj, do_unlink=True)
+                except ReferenceError:
+                    pass
 
             if status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
                 for obj in original_objs:
@@ -181,5 +198,8 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if status != "FINISHED":
+                return status, msg
 
             return status, "Global Convex Hull gerado com sucesso."
