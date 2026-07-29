@@ -57,6 +57,7 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
         prefs.global_prev_mesh_action = "KEEP"
 
         overall_status = "FINISHED"
+        error_msg = ""
 
         # MODO BATCH ou MODO ÚNICO
         if is_batch or len(original_objs) == 1:
@@ -96,6 +97,7 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
 
                 if status != "FINISHED":
                     overall_status = status
+                    error_msg = msg
 
                 if new_obj.name in bpy.data.objects:
                     bpy.data.objects.remove(new_obj, do_unlink=True)
@@ -112,6 +114,9 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if overall_status != "FINISHED":
+                return overall_status, error_msg
 
             msg_end = (
                 "Batch Resampling concluído"
@@ -186,8 +191,12 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
 
             status, msg = super().apply_filter(context, props)
 
-            if host_obj.name in bpy.data.objects:
-                bpy.data.objects.remove(host_obj, do_unlink=True)
+            if host_obj:
+                try:
+                    if host_obj.name in bpy.data.objects:
+                        bpy.data.objects.remove(host_obj, do_unlink=True)
+                except ReferenceError:
+                    pass
 
             if status == "FINISHED" and context.active_object:
                 base_name = active_orig.name.split("_pymeshlab")[0]
@@ -201,6 +210,9 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if status != "FINISHED":
+                return status, msg
 
             return status, "Global Uniform Mesh Resampling gerado com sucesso."
 
