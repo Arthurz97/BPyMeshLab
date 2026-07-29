@@ -16,6 +16,9 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
 
     @classmethod
     def apply_filter(cls, context, props):
+        if context.active_object and context.active_object.mode != "OBJECT":
+            bpy.ops.object.mode_set(mode="OBJECT")
+
         original_objs = [obj for obj in context.selected_objects if obj.type == "MESH"]
         if not original_objs:
             return "CANCELLED", "Selecione pelo menos um objeto do tipo malha (Mesh)."
@@ -40,10 +43,30 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
 
             # 2. Aplica modificadores e transformações para uma malha final limpa
             bpy.ops.object.convert(target="MESH")
-            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+            original_matrix = new_obj.matrix_world.copy()
+            original_rotation = new_obj.rotation_euler.copy()
+            original_scale = new_obj.scale.copy()
+            bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
             # 3. Roda o filtro no objeto temporário
             status, msg = super().apply_filter(context, props)
+
+            if (
+                getattr(props, "blender_preserve_transforms", False)
+                and status == "FINISHED"
+                and context.active_object
+            ):
+                import mathutils
+
+                temp_matrix = mathutils.Matrix.Translation(original_matrix.translation)
+                context.active_object.data.transform(
+                    original_matrix.inverted() @ temp_matrix
+                )
+                context.active_object.matrix_world = original_matrix
+                context.active_object.rotation_euler = original_rotation
+                context.active_object.scale = original_scale
+
             if status != "FINISHED":
                 overall_status = status
 
@@ -73,6 +96,12 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
                 f"Batch Remesh concluído em {len(original_objs)} objetos.",
             )
         return overall_status, "Isotropic Remesh concluído com sucesso."
+
+    blender_preserve_transforms: BoolProperty(
+        name="Preserve Transforms",
+        description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
+        default=False,
+    )
 
     iterations: IntProperty(
         name="Iterations",
