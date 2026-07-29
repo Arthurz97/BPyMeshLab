@@ -7,11 +7,72 @@ from ..base_filter import MeshLabFilterBase
 class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilterBase):
     pymeshlab_filter = "meshing_isotropic_explicit_remeshing"
     requires_selection = True
+    is_batch_only = True
     shade_flat = True
     remove_attributes = ["quality", "texture_u", "texture_v", "sharp_face", "Col"]
     prefer_ply_disk = True
     percentage_parameters = ["targetlen", "maxsurfdist"]
     angle_parameters = ["featuredeg"]
+
+    @classmethod
+    def apply_filter(cls, context, props):
+        original_objs = [obj for obj in context.selected_objects if obj.type == "MESH"]
+        if not original_objs:
+            return "CANCELLED", "Selecione pelo menos um objeto do tipo malha (Mesh)."
+
+        overall_status = "FINISHED"
+
+        # Mascara a ação original para o base_filter não deletar os objetos originais no meio do loop
+        prefs = context.scene.meshlab_prefs
+        original_action = prefs.global_prev_mesh_action
+        prefs.global_prev_mesh_action = "KEEP"
+
+        for obj in original_objs:
+            bpy.ops.object.select_all(action="DESELECT")
+
+            # 1. Cria a cópia temporária do objeto atual
+            new_obj = obj.copy()
+            new_obj.data = obj.data.copy()
+            context.collection.objects.link(new_obj)
+
+            new_obj.select_set(True)
+            context.view_layer.objects.active = new_obj
+
+            # 2. Aplica modificadores e transformações para uma malha final limpa
+            bpy.ops.object.convert(target="MESH")
+            bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+            # 3. Roda o filtro no objeto temporário
+            status, msg = super().apply_filter(context, props)
+            if status != "FINISHED":
+                overall_status = status
+
+            # 4. Limpa o objeto temporário usado de ponte
+            if new_obj.name in bpy.data.objects:
+                bpy.data.objects.remove(new_obj, do_unlink=True)
+
+            # Renomeia o objeto final gerado, removendo sufixo
+            if status == "FINISHED" and context.active_object:
+                base_name = obj.name.split("_pymeshlab")[0]
+                context.active_object.name = f"{base_name}_pymeshlab"
+
+        # Restaura a preferência de UI
+        prefs.global_prev_mesh_action = original_action
+
+        # Aplica HIDE ou DELETE aos originais no final do processo
+        if overall_status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
+            for obj in original_objs:
+                if original_action == "HIDE":
+                    obj.hide_set(True)
+                elif original_action == "DELETE":
+                    bpy.data.objects.remove(obj, do_unlink=True)
+
+        if len(original_objs) > 1:
+            return (
+                overall_status,
+                f"Batch Remesh concluído em {len(original_objs)} objetos.",
+            )
+        return overall_status, "Isotropic Remesh concluído com sucesso."
 
     iterations: IntProperty(
         name="Iterations",
