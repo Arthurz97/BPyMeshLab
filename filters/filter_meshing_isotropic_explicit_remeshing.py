@@ -39,6 +39,7 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         prefs.global_prev_mesh_action = "KEEP"
 
         overall_status = "FINISHED"
+        error_msg = ""
 
         # MODO BATCH ou MODO ÚNICO
         if is_batch or len(original_objs) == 1:
@@ -78,6 +79,7 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
 
                 if status != "FINISHED":
                     overall_status = status
+                    error_msg = msg
 
                 if new_obj.name in bpy.data.objects:
                     bpy.data.objects.remove(new_obj, do_unlink=True)
@@ -94,6 +96,9 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if overall_status != "FINISHED":
+                return overall_status, error_msg
 
             msg_end = (
                 "Batch Remesh concluído"
