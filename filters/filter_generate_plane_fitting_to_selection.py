@@ -78,6 +78,7 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
         prefs.global_prev_mesh_action = "KEEP"
 
         overall_status = "FINISHED"
+        error_msg = ""
 
         # MODO BATCH ou MODO ÚNICO
         if is_batch or len(valid_objs) == 1:
@@ -117,6 +118,7 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
 
                 if status != "FINISHED":
                     overall_status = status
+                    error_msg = msg
 
                 if new_obj.name in bpy.data.objects:
                     bpy.data.objects.remove(new_obj, do_unlink=True)
@@ -133,6 +135,9 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if overall_status != "FINISHED":
+                return overall_status, error_msg
 
             msg_end = (
                 "Batch Plane Fit concluído"
@@ -180,8 +185,19 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
 
             status, msg = super().apply_filter(context, props)
 
-            if temp_merged and temp_merged.name in bpy.data.objects:
-                bpy.data.objects.remove(temp_merged, do_unlink=True)
+            if temp_merged:
+                try:
+                    if temp_merged.name in bpy.data.objects:
+                        bpy.data.objects.remove(temp_merged, do_unlink=True)
+                except ReferenceError:
+                    pass
+
+            for obj in temp_objs:
+                try:
+                    if obj.name in bpy.data.objects:
+                        bpy.data.objects.remove(obj, do_unlink=True)
+                except ReferenceError:
+                    pass
 
             prefs.global_prev_mesh_action = original_action
 
@@ -191,6 +207,9 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                         obj.hide_set(True)
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
+
+            if status != "FINISHED":
+                return status, msg
 
             return status, "Global Plane gerado englobando todas as seleções válidas."
 
