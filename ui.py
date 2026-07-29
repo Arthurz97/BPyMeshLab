@@ -167,12 +167,37 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             # --- Ação sobre o objeto e Botão de Aplicar (Movidos para o topo) ---
 
             # Empilha as configurações globais usando o padrão 'split' nativo
+            # --- Ação sobre o objeto e Botão de Aplicar (Movidos para o topo) ---
+
             col_action = layout.column(align=True)
             col_action.use_property_split = True
             col_action.use_property_decorate = False
 
             col_action.prop(prefs, "processing_engine", text="Engine")
             col_action.prop(prefs, "global_prev_mesh_action", text="Action on Selected")
+
+            # --- INÍCIO DA MENSAGEM DE AVISO DINÂMICO ---
+            num_selected = len(context.selected_objects)
+            msg_parts = []
+
+            if num_selected > 1:
+                if hasattr(props, "blender_batch"):
+                    if getattr(props, "blender_batch"):
+                        msg_parts.append(f"Batch: {num_selected} objetos.")
+                    else:
+                        msg_parts.append(f"Global: {num_selected} objetos unidos.")
+                elif getattr(props, "is_batch_only", False):
+                    msg_parts.append(f"Batch Obrigatório: {num_selected} objetos.")
+            elif num_selected == 1 and getattr(props, "ignores_modifiers", False):
+                msg_parts.append("1 objeto selecionado.")
+
+            if getattr(props, "ignores_modifiers", False):
+                msg_parts.append("(Modificadores não serão usados)")
+
+            if msg_parts:
+                row_info = layout.row()
+                row_info.label(text=" ".join(msg_parts), icon="INFO")
+            # --- FIM DA MENSAGEM DE AVISO DINÂMICO ---
 
             col = layout.column()
             col.scale_y = 1.5
@@ -196,4 +221,10 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
 
                 ui_label = props.bl_rna.properties[key].name
                 row = box_filter.row()
+                # INÍCIO DO ESMAECIMENTO DINÂMICO
+                if hasattr(
+                    props, "is_property_disabled"
+                ) and props.is_property_disabled(key, context):
+                    row.enabled = False
+                # FIM DO ESMAECIMENTO DINÂMICO
                 row.prop(props, key, text=ui_label)
