@@ -36,10 +36,19 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
         description="If checked, processes each valid object individually. If unchecked, fits a single plane to all selected faces globally.",
         default=False,
     )
+    blender_preserve_transforms: BoolProperty(
+        name="Preserve Transforms",
+        description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
+        default=False,
+    )
 
     def is_property_disabled(self, key, context):
         if key == "blender_batch":
             return len(context.selected_objects) <= 1
+        if key == "blender_preserve_transforms":
+            return len(context.selected_objects) > 1 and not getattr(
+                self, "blender_batch", False
+            )
         return False
 
     @classmethod
@@ -61,19 +70,20 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                 "Nenhum dos objetos avaliados possui faces ativamente selecionadas.",
             )
 
-        # MODO BATCH
-        if getattr(props, "blender_batch", False) and len(valid_objs) > 1:
-            overall_status = "FINISHED"
+        is_batch = getattr(props, "blender_batch", False)
+        preserve = getattr(props, "blender_preserve_transforms", False)
 
-            # Mascara a ação original
-            prefs = context.scene.meshlab_prefs
-            original_action = prefs.global_prev_mesh_action
-            prefs.global_prev_mesh_action = "KEEP"
+        prefs = context.scene.meshlab_prefs
+        original_action = prefs.global_prev_mesh_action
+        prefs.global_prev_mesh_action = "KEEP"
 
+        overall_status = "FINISHED"
+
+        # MODO BATCH ou MODO ÚNICO
+        if is_batch or len(valid_objs) == 1:
             for obj in valid_objs:
                 bpy.ops.object.select_all(action="DESELECT")
 
-                # 1. Cria a cópia temporária
                 new_obj = obj.copy()
                 new_obj.data = obj.data.copy()
                 context.collection.objects.link(new_obj)
@@ -81,27 +91,42 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                 new_obj.select_set(True)
                 context.view_layer.objects.active = new_obj
 
-                # 2. Deleta modificadores para preservar topologia da seleção e aplica transformações
                 new_obj.modifiers.clear()
-                bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
-                # 3. Executa o filtro
+                original_matrix = new_obj.matrix_world.copy()
+                original_rotation = new_obj.rotation_euler.copy()
+                original_scale = new_obj.scale.copy()
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
+
                 status, msg = super().apply_filter(context, props)
+
+                if preserve and status == "FINISHED" and context.active_object:
+                    import mathutils
+
+                    temp_matrix = mathutils.Matrix.Translation(
+                        original_matrix.translation
+                    )
+                    context.active_object.data.transform(
+                        original_matrix.inverted() @ temp_matrix
+                    )
+                    context.active_object.matrix_world = original_matrix
+                    context.active_object.rotation_euler = original_rotation
+                    context.active_object.scale = original_scale
+
                 if status != "FINISHED":
                     overall_status = status
 
-                # 4. Limpeza
                 if new_obj.name in bpy.data.objects:
                     bpy.data.objects.remove(new_obj, do_unlink=True)
 
-                # Corrige o nome final removendo sufixo
                 if status == "FINISHED" and context.active_object:
                     base_name = obj.name.split("_pymeshlab")[0]
                     context.active_object.name = f"{base_name}_pymeshlab"
 
             prefs.global_prev_mesh_action = original_action
 
-            # Aplica ação original nos objetos válidos no final
             if overall_status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
                 for obj in valid_objs:
                     if original_action == "HIDE":
@@ -109,18 +134,21 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                     elif original_action == "DELETE":
                         bpy.data.objects.remove(obj, do_unlink=True)
 
+            msg_end = (
+                "Batch Plane Fit concluído"
+                if len(valid_objs) > 1
+                else "Plane Fit concluído"
+            )
             return (
                 overall_status,
-                f"Batch Plane Fit concluído em {len(valid_objs)} objetos válidos.",
+                f"{msg_end} em {len(valid_objs)} objeto(s).",
             )
 
         # MODO GLOBAL
         else:
-            if len(valid_objs) == 1:
-                bpy.ops.object.select_all(action="DESELECT")
-                valid_objs[0].select_set(True)
-                context.view_layer.objects.active = valid_objs[0]
-                return super().apply_filter(context, props)
+            active_idx = 0
+            if context.active_object in valid_objs:
+                active_idx = valid_objs.index(context.active_object)
 
             bpy.ops.object.select_all(action="DESELECT")
             temp_objs = []
@@ -134,30 +162,28 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                 new_obj.select_set(True)
                 context.view_layer.objects.active = new_obj
 
-                # Regra Fit Plane: Limpa os modificadores antes de alinhar e juntar
                 new_obj.modifiers.clear()
-                bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
 
                 temp_objs.append(new_obj)
 
             bpy.ops.object.select_all(action="DESELECT")
             for obj in temp_objs:
                 obj.select_set(True)
-            context.view_layer.objects.active = temp_objs[0]
+
+            context.view_layer.objects.active = temp_objs[active_idx]
             bpy.ops.object.join()
 
             temp_merged = context.active_object
 
-            prefs = context.scene.meshlab_prefs
-            original_action = prefs.global_prev_mesh_action
-            prefs.global_prev_mesh_action = "KEEP"
-
             status, msg = super().apply_filter(context, props)
-
-            prefs.global_prev_mesh_action = original_action
 
             if temp_merged and temp_merged.name in bpy.data.objects:
                 bpy.data.objects.remove(temp_merged, do_unlink=True)
+
+            prefs.global_prev_mesh_action = original_action
 
             if status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
                 for obj in valid_objs:

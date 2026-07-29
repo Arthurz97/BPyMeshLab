@@ -1,5 +1,6 @@
 import bpy, os, tempfile, gc, math
 import pymeshlab
+import mathutils
 import numpy as np
 import time
 from . import utils
@@ -309,8 +310,20 @@ class MeshLabFilterBase:
                 if cls.requires_selection and has_mesh:
                     # RESTAURAÇÃO DE MATRIZ: Se o objeto original tinha escala ou rotação aplicadas em Object Mode,
                     # a exportação/importação bagunça isso. Esse bloco injeta a World Matrix exata do original.
-                    new_obj.data.transform(original_obj.matrix_world.inverted())
-                    new_obj.matrix_world = original_obj.matrix_world.copy()
+
+                    preserve = getattr(props, "blender_preserve_transforms", False)
+
+                    if preserve:
+                        new_obj.data.transform(original_obj.matrix_world.inverted())
+                        new_obj.matrix_world = original_obj.matrix_world.copy()
+                        # Força o Blender a manter os mesmos números limpos na UI
+                        new_obj.rotation_euler = original_obj.rotation_euler.copy()
+                        new_obj.scale = original_obj.scale.copy()
+                    else:
+                        loc = original_obj.matrix_world.translation
+                        new_matrix = mathutils.Matrix.Translation(loc)
+                        new_obj.data.transform(new_matrix.inverted())
+                        new_obj.matrix_world = new_matrix
 
                     # NOMEAÇÃO AUTOMÁTICA (Filtros de edição ou geração):
                     if hasattr(cls, "custom_name") and cls.custom_name:

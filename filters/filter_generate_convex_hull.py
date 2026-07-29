@@ -18,10 +18,19 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
         description="If checked, processes each selected object individually. If unchecked, generates a single global Convex Hull englobing all objects.",
         default=False,
     )
+    blender_preserve_transforms: BoolProperty(
+        name="Preserve Transforms",
+        description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
+        default=False,
+    )
 
     def is_property_disabled(self, key, context):
         if key == "blender_batch":
             return len(context.selected_objects) <= 1
+        if key == "blender_preserve_transforms":
+            return len(context.selected_objects) > 1 and not getattr(
+                self, "blender_batch", False
+            )
         return False
 
     @classmethod
@@ -53,10 +62,36 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
 
                 # 2. Aplica modificadores e transformações (Garante escala/rotação limpas no MeshLab)
                 bpy.ops.object.convert(target="MESH")
-                bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+
+                # Salva a matriz ANTES do transform_apply para compensação matemática no modo Batch
+                original_matrix = new_obj.matrix_world.copy()
+                original_rotation = new_obj.rotation_euler.copy()
+                original_scale = new_obj.scale.copy()
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
 
                 # 3. Roda o filtro no objeto temporário limpo
                 status, msg = super().apply_filter(context, props)
+
+                # Compensação matemática e Restauração visual da UI
+                if (
+                    getattr(props, "blender_preserve_transforms", False)
+                    and status == "FINISHED"
+                    and context.active_object
+                ):
+                    import mathutils
+
+                    temp_matrix = mathutils.Matrix.Translation(
+                        original_matrix.translation
+                    )
+                    context.active_object.data.transform(
+                        original_matrix.inverted() @ temp_matrix
+                    )
+                    context.active_object.matrix_world = original_matrix
+                    context.active_object.rotation_euler = original_rotation
+                    context.active_object.scale = original_scale
+
                 if status != "FINISHED":
                     overall_status = status
 
@@ -91,6 +126,11 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
                 return super().apply_filter(context, props)
 
             # --- Estratégia de Fusão Temporária (Aplicando Modificadores e Transformações) ---
+            # Identifica o índice do objeto ativo real para manter sua origem e nome no Join
+            active_idx = 0
+            if context.active_object in original_objs:
+                active_idx = original_objs.index(context.active_object)
+
             bpy.ops.object.select_all(action="DESELECT")
             temp_objs = []
 
@@ -107,15 +147,19 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
                 # 2. Aplica todos os modificadores da Viewport (Visual Geometry to Mesh)
                 bpy.ops.object.convert(target="MESH")
 
-                # 3. Aplica Rotação e Escala com a malha base já purificada
-                bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+                # 3. Aplica Rotação e Escala mantendo a origem local ancorada (location=False)
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
 
                 temp_objs.append(new_obj)
 
             bpy.ops.object.select_all(action="DESELECT")
             for obj in temp_objs:
                 obj.select_set(True)
-            context.view_layer.objects.active = temp_objs[0]
+
+            # Define o representante do ativo original como ativo no Blender para o Join
+            context.view_layer.objects.active = temp_objs[active_idx]
             bpy.ops.object.join()
 
             temp_merged = context.active_object
