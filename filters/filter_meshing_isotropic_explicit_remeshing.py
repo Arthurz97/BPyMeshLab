@@ -7,12 +7,20 @@ from ..base_filter import MeshLabFilterBase
 class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilterBase):
     pymeshlab_filter = "meshing_isotropic_explicit_remeshing"
     requires_selection = True
-    is_batch_only = True
     shade_flat = True
     remove_attributes = ["quality", "texture_u", "texture_v", "sharp_face", "Col"]
     prefer_ply_disk = True
     percentage_parameters = ["targetlen", "maxsurfdist"]
     angle_parameters = ["featuredeg"]
+
+    def is_property_disabled(self, key, context):
+        if key == "blender_batch":
+            return len(context.selected_objects) <= 1
+        if key in ["blender_preserve_transforms", "selectedonly"]:
+            return len(context.selected_objects) > 1 and not getattr(
+                self, "blender_batch", False
+            )
+        return False
 
     @classmethod
     def apply_filter(cls, context, props):
@@ -23,80 +31,174 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
         if not original_objs:
             return "CANCELLED", "Selecione pelo menos um objeto do tipo malha (Mesh)."
 
-        overall_status = "FINISHED"
+        is_batch = getattr(props, "blender_batch", False)
+        preserve = getattr(props, "blender_preserve_transforms", False)
 
-        # Mascara a ação original para o base_filter não deletar os objetos originais no meio do loop
         prefs = context.scene.meshlab_prefs
         original_action = prefs.global_prev_mesh_action
         prefs.global_prev_mesh_action = "KEEP"
 
-        for obj in original_objs:
+        overall_status = "FINISHED"
+
+        # MODO BATCH ou MODO ÚNICO
+        if is_batch or len(original_objs) == 1:
+            for obj in original_objs:
+                bpy.ops.object.select_all(action="DESELECT")
+
+                new_obj = obj.copy()
+                new_obj.data = obj.data.copy()
+                context.collection.objects.link(new_obj)
+
+                new_obj.select_set(True)
+                context.view_layer.objects.active = new_obj
+
+                bpy.ops.object.convert(target="MESH")
+
+                original_matrix = new_obj.matrix_world.copy()
+                original_rotation = new_obj.rotation_euler.copy()
+                original_scale = new_obj.scale.copy()
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
+
+                status, msg = super().apply_filter(context, props)
+
+                if preserve and status == "FINISHED" and context.active_object:
+                    import mathutils
+
+                    temp_matrix = mathutils.Matrix.Translation(
+                        original_matrix.translation
+                    )
+                    context.active_object.data.transform(
+                        original_matrix.inverted() @ temp_matrix
+                    )
+                    context.active_object.matrix_world = original_matrix
+                    context.active_object.rotation_euler = original_rotation
+                    context.active_object.scale = original_scale
+
+                if status != "FINISHED":
+                    overall_status = status
+
+                if new_obj.name in bpy.data.objects:
+                    bpy.data.objects.remove(new_obj, do_unlink=True)
+
+                if status == "FINISHED" and context.active_object:
+                    base_name = obj.name.split("_pymeshlab")[0]
+                    context.active_object.name = f"{base_name}_pymeshlab"
+
+            prefs.global_prev_mesh_action = original_action
+
+            if overall_status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
+                for obj in original_objs:
+                    if original_action == "HIDE":
+                        obj.hide_set(True)
+                    elif original_action == "DELETE":
+                        bpy.data.objects.remove(obj, do_unlink=True)
+
+            msg_end = (
+                "Batch Remesh concluído"
+                if len(original_objs) > 1
+                else "Isotropic Remesh concluído"
+            )
+            return overall_status, f"{msg_end} em {len(original_objs)} objeto(s)."
+
+        # MODO GLOBAL (BOOLEAN MANIFOLD VIA COLLECTION)
+        else:
             bpy.ops.object.select_all(action="DESELECT")
 
-            # 1. Cria a cópia temporária do objeto atual
-            new_obj = obj.copy()
-            new_obj.data = obj.data.copy()
-            context.collection.objects.link(new_obj)
+            temp_col = bpy.data.collections.new("Temp_Boolean_Collection")
+            context.scene.collection.children.link(temp_col)
 
-            new_obj.select_set(True)
-            context.view_layer.objects.active = new_obj
+            temp_objs = []
+            for obj in original_objs:
+                new_obj = obj.copy()
+                new_obj.data = obj.data.copy()
+                temp_col.objects.link(new_obj)
 
-            # 2. Aplica modificadores e transformações para uma malha final limpa
-            bpy.ops.object.convert(target="MESH")
+                bpy.ops.object.select_all(action="DESELECT")
+                new_obj.select_set(True)
+                context.view_layer.objects.active = new_obj
 
-            original_matrix = new_obj.matrix_world.copy()
-            original_rotation = new_obj.rotation_euler.copy()
-            original_scale = new_obj.scale.copy()
+                bpy.ops.object.convert(target="MESH")
+                bpy.ops.object.transform_apply(
+                    location=False, rotation=True, scale=True
+                )
+                temp_objs.append(new_obj)
+
+            host_mesh = bpy.data.meshes.new("Host_Mesh")
+            host_obj = bpy.data.objects.new("Host_Obj", host_mesh)
+            context.collection.objects.link(host_obj)
+
+            bpy.ops.object.select_all(action="DESELECT")
+            host_obj.select_set(True)
+            context.view_layer.objects.active = host_obj
+
+            active_orig = (
+                context.active_object
+                if context.active_object in original_objs
+                else original_objs[0]
+            )
+            host_obj.location = active_orig.location.copy()
+
+            bool_mod = host_obj.modifiers.new(name="Global_Union", type="BOOLEAN")
+            bool_mod.operation = "UNION"
+            bool_mod.operand_type = "COLLECTION"
+            bool_mod.collection = temp_col
+            bool_mod.solver = "MANIFOLD"
+
+            bpy.ops.object.modifier_apply(modifier=bool_mod.name)
+
+            if len(host_obj.data.polygons) == 0:
+                bpy.data.objects.remove(host_obj, do_unlink=True)
+                for obj in temp_objs:
+                    bpy.data.objects.remove(obj, do_unlink=True)
+                bpy.data.collections.remove(temp_col)
+
+                return (
+                    "CANCELLED",
+                    "A união falhou. O modo Global exige que as malhas cruzadas sejam fechadas (Manifold).",
+                )
+
+            for obj in temp_objs:
+                bpy.data.objects.remove(obj, do_unlink=True)
+            bpy.data.collections.remove(temp_col)
+
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
-            # 3. Roda o filtro no objeto temporário
+            # OVERRIDE TEMPORÁRIO: Desliga o selectedonly para evitar a trava de proteção da Classe Mestra
+            original_selectedonly = getattr(props, "selectedonly", False)
+            if original_selectedonly:
+                props.selectedonly = False
+
             status, msg = super().apply_filter(context, props)
 
-            if (
-                getattr(props, "blender_preserve_transforms", False)
-                and status == "FINISHED"
-                and context.active_object
-            ):
-                import mathutils
+            # Restaura a opção original da interface para o usuário
+            if original_selectedonly:
+                props.selectedonly = True
 
-                temp_matrix = mathutils.Matrix.Translation(original_matrix.translation)
-                context.active_object.data.transform(
-                    original_matrix.inverted() @ temp_matrix
-                )
-                context.active_object.matrix_world = original_matrix
-                context.active_object.rotation_euler = original_rotation
-                context.active_object.scale = original_scale
+            if host_obj.name in bpy.data.objects:
+                bpy.data.objects.remove(host_obj, do_unlink=True)
 
-            if status != "FINISHED":
-                overall_status = status
-
-            # 4. Limpa o objeto temporário usado de ponte
-            if new_obj.name in bpy.data.objects:
-                bpy.data.objects.remove(new_obj, do_unlink=True)
-
-            # Renomeia o objeto final gerado, removendo sufixo
             if status == "FINISHED" and context.active_object:
-                base_name = obj.name.split("_pymeshlab")[0]
+                base_name = active_orig.name.split("_pymeshlab")[0]
                 context.active_object.name = f"{base_name}_pymeshlab"
 
-        # Restaura a preferência de UI
-        prefs.global_prev_mesh_action = original_action
+            prefs.global_prev_mesh_action = original_action
 
-        # Aplica HIDE ou DELETE aos originais no final do processo
-        if overall_status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
-            for obj in original_objs:
-                if original_action == "HIDE":
-                    obj.hide_set(True)
-                elif original_action == "DELETE":
-                    bpy.data.objects.remove(obj, do_unlink=True)
+            if status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
+                for obj in original_objs:
+                    if original_action == "HIDE":
+                        obj.hide_set(True)
+                    elif original_action == "DELETE":
+                        bpy.data.objects.remove(obj, do_unlink=True)
 
-        if len(original_objs) > 1:
-            return (
-                overall_status,
-                f"Batch Remesh concluído em {len(original_objs)} objetos.",
-            )
-        return overall_status, "Isotropic Remesh concluído com sucesso."
+            return status, "Global Isotropic Remesh gerado com sucesso."
 
+    blender_batch: BoolProperty(
+        name="Batch Process",
+        description="If checked, processes each selected object individually. If unchecked, generates a single global volume englobing all objects.",
+        default=False,
+    )
     blender_preserve_transforms: BoolProperty(
         name="Preserve Transforms",
         description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
