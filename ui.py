@@ -164,10 +164,9 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             layout.operator(
                 "meshlab.reset_filter_settings", text="Reset Filter Settings"
             )
-            # --- Ação sobre o objeto e Botão de Aplicar (Movidos para o topo) ---
 
-            # Empilha as configurações globais usando o padrão 'split' nativo
             # --- Ação sobre o objeto e Botão de Aplicar (Movidos para o topo) ---
+            # Empilha as configurações globais usando o padrão 'split' nativo
 
             col_action = layout.column(align=True)
             col_action.use_property_split = True
