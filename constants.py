@@ -23,6 +23,7 @@ UI_MAPPING = {
         "create_noisy_isosurface",
         "generate_plane_fitting_to_selection",
         "create_fractal_terrain",
+        "create_implicit_surface",
     ],
     "Remeshing, Simplification and Reconstruction": [
         "meshing_isotropic_explicit_remeshing",
@@ -50,6 +51,7 @@ FILTER_NAMES = {
     "meshing_isotropic_explicit_remeshing": "Remeshing: Isotropic Explicit Remeshing",
     "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
     "generate_convex_hull": "Convex Hull",
+    "create_implicit_surface": "Implicit Surface",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -71,4 +73,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_isotropic_explicit_remeshing": "TBD",
     "generate_resampled_uniform_mesh": "TBD",
     "generate_convex_hull": "TBD",
+    "create_implicit_surface": "TBD",
 }
