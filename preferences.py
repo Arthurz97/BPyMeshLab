@@ -6,19 +6,19 @@ from .constants import UI_MAPPING, FILTER_NAMES, FILTER_DESCRIPTIONS
 class MESHLAB_props_preferences(bpy.types.PropertyGroup):
     processing_engine: EnumProperty(
         name="Engine",
-        description="Select the processing pipeline. Memory is vastly faster, Disk is safer for extreme high-poly meshes.",
+        description="Select the processing pipeline method: Memory or Disk.",
         items=[
             (
                 "MEMORY",
                 "Memory (RAM)",
-                "Processes arrays directly in memory via NumPy. Instant I/O.",
+                "Processes data directly in memory via NumPy, without disk I/O.",
                 "MEMORY",
                 0,
             ),
             (
                 "DISK",
                 "Disk (I/O)",
-                "Exports temporary PLY files. Slower, but safe fallback for memory limits.",
+                "Exports and imports temporary files via disk.",
                 "DISK_DRIVE",
                 1,
             ),

@@ -69,7 +69,7 @@ class MeshLabFilterBase:
                 ms = pymeshlab.MeshSet()
 
                 # ==========================================================
-                # CAMINHO 1: PROCESSAMENTO EM MEMÓRIA (NumPy) - ALTA PERFORMANCE
+                # CAMINHO 1: PROCESSAMENTO EM MEMÓRIA (NumPy)
                 # ==========================================================
                 if engine == "MEMORY":
                     if has_mesh:
@@ -96,7 +96,7 @@ class MeshLabFilterBase:
                             ms.compute_selection_transfer_vertex_to_face()
 
                 # ==========================================================
-                # CAMINHO 2: PROCESSAMENTO EM DISCO (I/O) - FALLBACK DE SEGURANÇA
+                # CAMINHO 2: PROCESSAMENTO EM DISCO (I/O)
                 # ==========================================================
                 elif engine == "DISK":
                     if cls.requires_selection and has_mesh:
