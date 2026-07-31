@@ -14,7 +14,6 @@ class MESHLAB_PG_meshing_surface_subdivision_butterfly(
     remove_attributes = ["custom_normal", "sharp_edge", "sharp_face"]
     percentage_parameters = ["threshold"]
     prefer_ply_disk = True
-    pre_filter_native = "meshing_poly_to_tri"
 
     def is_property_disabled(self, key, context):
         if key == "blender_batch":

@@ -101,12 +101,37 @@ class MeshLabFilterBase:
                 elif engine == "DISK":
                     if cls.requires_selection and has_mesh:
                         input_path = os.path.join(tmpdir, "input.ply")
-                        bpy.ops.object.select_all(action="DESELECT")
-                        original_obj.select_set(True)
 
-                        # Sincroniza a memória do Blender
+                        # --- PREPARAÇÃO TOPOLÓGICA (BMESH) PARA DISCO ---
+                        # Cria uma cópia temporária da malha para não destruir a geometria original do usuário na Viewport
+                        temp_mesh = original_obj.data.copy()
+
+                        import bmesh
+
+                        bm = bmesh.new()
+                        bm.from_mesh(temp_mesh)
+                        # Garante triangulação perfeita (Beauty) dos N-gons antes de enviar para o arquivo C++
+                        bmesh.ops.triangulate(
+                            bm,
+                            faces=bm.faces[:],
+                            quad_method="FIXED",
+                            ngon_method="BEAUTY",
+                        )
+                        bm.to_mesh(temp_mesh)
+                        bm.free()
+
+                        # Cria um objeto temporário descartável para hospedar a malha e exportar
+                        temp_obj = bpy.data.objects.new("Temp_Export", temp_mesh)
+                        context.collection.objects.link(temp_obj)
+                        temp_obj.matrix_world = original_obj.matrix_world.copy()
+
+                        bpy.ops.object.select_all(action="DESELECT")
+                        temp_obj.select_set(True)
+                        context.view_layer.objects.active = temp_obj
+
+                        # Sincroniza a memória do Blender com a nova malha triangulada
                         context.view_layer.update()
-                        original_obj.data.update()
+                        temp_mesh.update()
 
                         # ---- 1. PROTEÇÃO DE CORES E TRANSFERÊNCIA DE SELEÇÃO ----
                         temp_color = None
@@ -124,15 +149,15 @@ class MeshLabFilterBase:
 
                         if is_selected_only:
                             # USAMOS POINT (Vértices) porque o PLY C++ garante essa exportação
-                            temp_color = original_obj.data.color_attributes.new(
+                            temp_color = temp_mesh.color_attributes.new(
                                 name="Col", type="BYTE_COLOR", domain="POINT"
                             )
-                            original_obj.data.attributes.active_color = temp_color
+                            temp_mesh.attributes.active_color = temp_color
 
-                            # Extrai a seleção diretamente dos vértices
+                            # Extrai a seleção diretamente dos vértices da malha temporária
                             colors = [
                                 val
-                                for v in original_obj.data.vertices
+                                for v in temp_mesh.vertices
                                 for val in (
                                     (1.0, 1.0, 1.0, 1.0)
                                     if v.select
@@ -145,12 +170,12 @@ class MeshLabFilterBase:
                             # Evita que Vertex Colors residuais causem separação da malha
                             export_kwargs["export_colors"] = "NONE"
 
-                        # Exporta dinamicamente passando os parâmetros seguros
+                        # Exporta dinamicamente a malha temporária passando os parâmetros seguros
                         bpy.ops.wm.ply_export(**export_kwargs)
 
-                        # Limpeza imediata para manter seu objeto original intacto
-                        if temp_color:
-                            original_obj.data.color_attributes.remove(temp_color)
+                        # Limpeza imediata dos dados temporários após exportar
+                        bpy.data.objects.remove(temp_obj, do_unlink=True)
+                        bpy.data.meshes.remove(temp_mesh, do_unlink=True)
 
                         ms.load_new_mesh(input_path)
 
@@ -191,15 +216,6 @@ class MeshLabFilterBase:
                 # Permite que o filtro intercepte, injete ou altere parâmetros antes de enviar ao motor C++
                 if hasattr(cls, "pre_process_parameters"):
                     cls.pre_process_parameters(params, props)
-
-                # ==========================================================
-                # PRÉ-PROCESSAMENTO NATIVO (C++) - Padronização Topológica
-                # ==========================================================
-                if hasattr(cls, "pre_filter_native") and cls.pre_filter_native:
-                    ms.apply_filter(cls.pre_filter_native)
-                    # Se o pré-filtro quebrar polígonos, transfere a seleção dos vértices originais para as novas faces
-                    if is_selected_only:
-                        ms.compute_selection_transfer_vertex_to_face()
 
                 # EXECUÇÃO: Aplica o filtro com os parâmetros mapeados
                 ms.apply_filter(cls.pymeshlab_filter, **params)
