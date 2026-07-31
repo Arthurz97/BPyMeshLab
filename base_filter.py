@@ -110,10 +110,16 @@ class MeshLabFilterBase:
 
                         # ---- 1. PROTEÇÃO DE CORES E TRANSFERÊNCIA DE SELEÇÃO ----
                         temp_color = None
+                        # Flags dinâmicas para evitar o rasgo de vértices (Vertex Splitting) no disco
+                        req_normals = getattr(cls, "requires_normals_disk", False)
+                        req_uv = getattr(cls, "requires_uv_disk", False)
+
                         export_kwargs = {
                             "filepath": input_path,
                             "export_selected_objects": True,
                             "ascii_format": False,  # Força explicitamente o formato Binário
+                            "export_normals": req_normals,
+                            "export_uv": req_uv,
                         }
 
                         if is_selected_only:
@@ -135,6 +141,9 @@ class MeshLabFilterBase:
                             ]
                             temp_color.data.foreach_set("color", colors)
                             export_kwargs["export_colors"] = "SRGB"
+                        else:
+                            # Evita que Vertex Colors residuais causem separação da malha
+                            export_kwargs["export_colors"] = "NONE"
 
                         # Exporta dinamicamente passando os parâmetros seguros
                         bpy.ops.wm.ply_export(**export_kwargs)
@@ -182,6 +191,15 @@ class MeshLabFilterBase:
                 # Permite que o filtro intercepte, injete ou altere parâmetros antes de enviar ao motor C++
                 if hasattr(cls, "pre_process_parameters"):
                     cls.pre_process_parameters(params, props)
+
+                # ==========================================================
+                # PRÉ-PROCESSAMENTO NATIVO (C++) - Padronização Topológica
+                # ==========================================================
+                if hasattr(cls, "pre_filter_native") and cls.pre_filter_native:
+                    ms.apply_filter(cls.pre_filter_native)
+                    # Se o pré-filtro quebrar polígonos, transfere a seleção dos vértices originais para as novas faces
+                    if is_selected_only:
+                        ms.compute_selection_transfer_vertex_to_face()
 
                 # EXECUÇÃO: Aplica o filtro com os parâmetros mapeados
                 ms.apply_filter(cls.pymeshlab_filter, **params)
