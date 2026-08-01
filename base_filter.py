@@ -110,6 +110,11 @@ class MeshLabFilterBase:
 
                         bm = bmesh.new()
                         bm.from_mesh(temp_mesh)
+
+                        # Limpeza prévia: Funde vértices sobrepostos (Weld) a uma distância de 1 milímetro
+                        # Vital para fechar buracos microscópicos antes da exportação via Disco
+                        bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.001)
+
                         # Garante triangulação perfeita (Beauty) dos N-gons antes de enviar para o arquivo C++
                         bmesh.ops.triangulate(
                             bm,
