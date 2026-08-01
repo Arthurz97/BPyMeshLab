@@ -85,8 +85,8 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
                     bpy.data.objects.remove(new_obj, do_unlink=True)
 
                 if status == "FINISHED" and context.active_object:
-                    base_name = obj.name.split("_pymeshlab")[0]
-                    context.active_object.name = f"{base_name}_pymeshlab"
+                    base_name = obj.name.split("_bpymeshlab")[0]
+                    context.active_object.name = f"{base_name}_bpymeshlab"
 
             prefs.global_prev_mesh_action = original_action
 
@@ -185,8 +185,8 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
                 bpy.data.objects.remove(host_obj, do_unlink=True)
 
             if status == "FINISHED" and context.active_object:
-                base_name = active_orig.name.split("_pymeshlab")[0]
-                context.active_object.name = f"{base_name}_pymeshlab"
+                base_name = active_orig.name.split("_bpymeshlab")[0]
+                context.active_object.name = f"{base_name}_bpymeshlab"
 
             prefs.global_prev_mesh_action = original_action
 

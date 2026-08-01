@@ -79,7 +79,7 @@ create_menu_classes()
 
 class MESHLAB_MT_main_menu(bpy.types.Menu):
     bl_idname = "MESHLAB_MT_main_menu"
-    bl_label = "PyMeshLab Filters"
+    bl_label = "BPyMeshLab Filters"
 
     def draw(self, context):
         layout = self.layout
@@ -115,11 +115,11 @@ class MESHLAB_OT_reset_filter_settings(bpy.types.Operator):
 
 
 class MESHLAB_PT_main_panel(bpy.types.Panel):
-    bl_label = "PyMeshLab Integration"
+    bl_label = "BPyMeshLab"
     bl_idname = "MESHLAB_PT_main_panel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "PyMeshLab"
+    bl_category = "BPyMeshLab"
 
     def draw(self, context):
         layout = self.layout

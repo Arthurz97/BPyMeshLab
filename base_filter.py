@@ -366,14 +366,14 @@ class MeshLabFilterBase:
 
                     # NOMEAÇÃO AUTOMÁTICA (Filtros de edição ou geração):
                     if hasattr(cls, "custom_name") and cls.custom_name:
-                        new_obj.name = f"{cls.custom_name}_pymeshlab"
+                        new_obj.name = f"{cls.custom_name}_bpymeshlab"
                     else:
-                        base_name = original_obj.name.split("_pymeshlab")[0]
-                        new_obj.name = f"{base_name}_pymeshlab"
+                        base_name = original_obj.name.split("_bpymeshlab")[0]
+                        new_obj.name = f"{base_name}_bpymeshlab"
                 else:
                     # NOMEAÇÃO AUTOMÁTICA E ROTAÇÃO PARA PRIMITIVAS (Filtros de Criação)
                     obj_name = cls.pymeshlab_filter.replace("create_", "").title()
-                    new_obj.name = f"{obj_name}_pymeshlab"
+                    new_obj.name = f"{obj_name}_bpymeshlab"
                     new_obj.location = context.scene.cursor.location
 
                     # Aplicação da Rotação Corrigida Positiva para compensar o eixo Y-up gerado pelo PyMeshLab
@@ -466,7 +466,7 @@ class MESHLAB_OT_apply_filter(bpy.types.Operator):
             # Mostra na interface (rodape do Blender) e imprime no console System
             self.report({"INFO"}, final_msg)
             print(
-                f"\n[PyMeshLab Integrator] Operação concluída: {elapsed_time:.3f} segundos | Motor: {engine_used}\n"
+                f"\n[BPyMeshLab] Operação concluída: {elapsed_time:.3f} segundos | Motor: {engine_used}\n"
             )
 
             return {"FINISHED"}

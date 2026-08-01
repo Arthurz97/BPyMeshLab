@@ -103,8 +103,8 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
 
                 # Renomeia o objeto final gerado, removendo qualquer sufixo temporário
                 if status == "FINISHED" and context.active_object:
-                    base_name = obj.name.split("_pymeshlab")[0]
-                    context.active_object.name = f"{base_name}_pymeshlab"
+                    base_name = obj.name.split("_bpymeshlab")[0]
+                    context.active_object.name = f"{base_name}_bpymeshlab"
 
             # Restaura a preferência de UI
             prefs.global_prev_mesh_action = original_action

@@ -103,8 +103,8 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
                     bpy.data.objects.remove(new_obj, do_unlink=True)
 
                 if status == "FINISHED" and context.active_object:
-                    base_name = obj.name.split("_pymeshlab")[0]
-                    context.active_object.name = f"{base_name}_pymeshlab"
+                    base_name = obj.name.split("_bpymeshlab")[0]
+                    context.active_object.name = f"{base_name}_bpymeshlab"
 
             prefs.global_prev_mesh_action = original_action
 
@@ -199,8 +199,8 @@ class MESHLAB_PG_generate_resampled_uniform_mesh(PropertyGroup, MeshLabFilterBas
                     pass
 
             if status == "FINISHED" and context.active_object:
-                base_name = active_orig.name.split("_pymeshlab")[0]
-                context.active_object.name = f"{base_name}_pymeshlab"
+                base_name = active_orig.name.split("_bpymeshlab")[0]
+                context.active_object.name = f"{base_name}_bpymeshlab"
 
             prefs.global_prev_mesh_action = original_action
 
