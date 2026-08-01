@@ -56,6 +56,10 @@ class MeshLabFilterBase:
         apply_prev_mesh_action = prefs.global_prev_mesh_action
         engine = prefs.processing_engine
 
+        # Trava de Segurança: Força o uso de DISCO para filtros que exigem polígonos
+        if getattr(cls, "requires_polygons_disk", False):
+            engine = "DISK"
+
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Checa a preferência do filtro para definir o formato de saída do motor C++
@@ -100,7 +104,12 @@ class MeshLabFilterBase:
                 # ==========================================================
                 elif engine == "DISK":
                     if cls.requires_selection and has_mesh:
-                        input_path = os.path.join(tmpdir, "input.ply")
+                        ext = (
+                            "obj"
+                            if getattr(cls, "requires_polygons_disk", False)
+                            else "ply"
+                        )
+                        input_path = os.path.join(tmpdir, f"input.{ext}")
 
                         # --- PREPARAÇÃO TOPOLÓGICA (BMESH) PARA DISCO ---
                         # Cria uma cópia temporária da malha para não destruir a geometria original do usuário na Viewport
@@ -115,13 +124,15 @@ class MeshLabFilterBase:
                         # Vital para fechar buracos microscópicos antes da exportação via Disco
                         bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.001)
 
-                        # Garante triangulação perfeita (Beauty) dos N-gons antes de enviar para o arquivo C++
-                        bmesh.ops.triangulate(
-                            bm,
-                            faces=bm.faces[:],
-                            quad_method="FIXED",
-                            ngon_method="BEAUTY",
-                        )
+                        # Se o filtro exigir polígonos (como o Catmull-Clark), ignoramos a triangulação destrutiva
+                        if not getattr(cls, "requires_polygons_disk", False):
+                            # Garante triangulação perfeita (Beauty) dos N-gons antes de enviar para o arquivo C++
+                            bmesh.ops.triangulate(
+                                bm,
+                                faces=bm.faces[:],
+                                quad_method="FIXED",
+                                ngon_method="BEAUTY",
+                            )
                         bm.to_mesh(temp_mesh)
                         bm.free()
 
@@ -138,45 +149,63 @@ class MeshLabFilterBase:
                         context.view_layer.update()
                         temp_mesh.update()
 
-                        # ---- 1. PROTEÇÃO DE CORES E TRANSFERÊNCIA DE SELEÇÃO ----
+                        # ---- 1. EXPORTAÇÃO DINÂMICA (OBJ vs PLY) E TRANSFERÊNCIA DE SELEÇÃO ----
                         temp_color = None
                         # Flags dinâmicas para evitar o rasgo de vértices (Vertex Splitting) no disco
                         req_normals = getattr(cls, "requires_normals_disk", False)
                         req_uv = getattr(cls, "requires_uv_disk", False)
+                        requires_poly = getattr(cls, "requires_polygons_disk", False)
 
-                        export_kwargs = {
-                            "filepath": input_path,
-                            "export_selected_objects": True,
-                            "ascii_format": False,  # Força explicitamente o formato Binário
-                            "export_normals": req_normals,
-                            "export_uv": req_uv,
-                        }
-
-                        if is_selected_only:
-                            # USAMOS POINT (Vértices) porque o PLY C++ garante essa exportação
-                            temp_color = temp_mesh.color_attributes.new(
-                                name="Col", type="BYTE_COLOR", domain="POINT"
-                            )
-                            temp_mesh.attributes.active_color = temp_color
-
-                            # Extrai a seleção diretamente dos vértices da malha temporária
-                            colors = [
-                                val
-                                for v in temp_mesh.vertices
-                                for val in (
-                                    (1.0, 1.0, 1.0, 1.0)
-                                    if v.select
-                                    else (0.0, 0.0, 0.0, 1.0)
-                                )
-                            ]
-                            temp_color.data.foreach_set("color", colors)
-                            export_kwargs["export_colors"] = "SRGB"
+                        if requires_poly:
+                            # ROTA OBJ: Preserva Quads, N-gons, UVs e Normais nativamente.
+                            export_kwargs = {
+                                "filepath": input_path,
+                                "export_selected_objects": True,
+                                "export_normals": req_normals,
+                                "export_uv": req_uv,
+                                "export_materials": False,  # Evita poluição de arquivos .mtl
+                                "export_triangulated_mesh": False,  # A chave-mestra para manter os Quads
+                                "forward_axis": "Y",
+                                "up_axis": "Z",
+                            }
+                            bpy.ops.wm.obj_export(**export_kwargs)
                         else:
-                            # Evita que Vertex Colors residuais causem separação da malha
-                            export_kwargs["export_colors"] = "NONE"
+                            # ROTA PLY (Trilho Padrão): Triângulos e suporte a Vertex Colors (Seleção).
+                            export_kwargs = {
+                                "filepath": input_path,
+                                "export_selected_objects": True,
+                                "ascii_format": False,  # Força explicitamente o formato Binário
+                                "export_normals": req_normals,
+                                "export_uv": req_uv,
+                                "forward_axis": "Y",
+                                "up_axis": "Z",
+                            }
 
-                        # Exporta dinamicamente a malha temporária passando os parâmetros seguros
-                        bpy.ops.wm.ply_export(**export_kwargs)
+                            if is_selected_only:
+                                # USAMOS POINT (Vértices) porque o PLY C++ garante essa exportação
+                                temp_color = temp_mesh.color_attributes.new(
+                                    name="Col", type="BYTE_COLOR", domain="POINT"
+                                )
+                                temp_mesh.attributes.active_color = temp_color
+
+                                # Extrai a seleção diretamente dos vértices da malha temporária
+                                colors = [
+                                    val
+                                    for v in temp_mesh.vertices
+                                    for val in (
+                                        (1.0, 1.0, 1.0, 1.0)
+                                        if v.select
+                                        else (0.0, 0.0, 0.0, 1.0)
+                                    )
+                                ]
+                                temp_color.data.foreach_set("color", colors)
+                                export_kwargs["export_colors"] = "SRGB"
+                            else:
+                                # Evita que Vertex Colors residuais causem separação da malha
+                                export_kwargs["export_colors"] = "NONE"
+
+                            # Exporta dinamicamente a malha temporária passando os parâmetros seguros
+                            bpy.ops.wm.ply_export(**export_kwargs)
 
                         # Limpeza imediata dos dados temporários após exportar
                         bpy.data.objects.remove(temp_obj, do_unlink=True)
@@ -271,7 +300,7 @@ class MeshLabFilterBase:
                         except Exception:
                             pass
 
-                    # Fallback de segurança para a matriz de triângulos bruta
+                    # Alternativa de segurança para a matriz de triângulos bruta
                     if not use_polygons:
                         out_faces = out_mesh.face_matrix()
 
@@ -317,13 +346,21 @@ class MeshLabFilterBase:
                         )
 
                     # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo correspondente
+                    # O uso explícito de Y Forward e Z Up desativa a conversão automática de eixos do Blender.
+                    # Isso impede que o importador adicione rotações escondidas de 90 graus na matrix_world,
+                    # garantindo que as matrizes de primitivas, planos e subdivisões funcionem perfeitamente.
                     if use_ply:
-                        bpy.ops.wm.ply_import(filepath=output_path)
+                        bpy.ops.wm.ply_import(
+                            filepath=output_path, forward_axis="Y", up_axis="Z"
+                        )
                     else:
-                        bpy.ops.wm.obj_import(filepath=output_path)
+                        bpy.ops.wm.obj_import(
+                            filepath=output_path, forward_axis="Y", up_axis="Z"
+                        )
 
                     if context.selected_objects:
                         new_obj = context.selected_objects[0]
+
                         # Limpa a seleção da malha vinda do disco também
                         if new_obj.type == "MESH":
                             m_data = new_obj.data

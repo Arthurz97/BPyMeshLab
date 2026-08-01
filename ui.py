@@ -20,6 +20,12 @@ class MESHLAB_OT_set_filter(bpy.types.Operator):
     def execute(self, context):
         # Atualiza a string do filtro selecionado no momento
         context.scene.meshlab_ui_state.filter_name = self.filter_id
+
+        # Auto-switch: Muda a engine para DISK automaticamente se o filtro exigir polígonos
+        props = getattr(context.scene, f"ml_{self.filter_id}", None)
+        if props and getattr(props.__class__, "requires_polygons_disk", False):
+            context.scene.meshlab_prefs.processing_engine = "DISK"
+
         return {"FINISHED"}
 
 
@@ -172,8 +178,25 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             col_action.use_property_split = True
             col_action.use_property_decorate = False
 
-            col_action.prop(prefs, "processing_engine", text="Engine")
+            # Trava de UI para filtros baseados em polígonos
+            requires_poly = getattr(props.__class__, "requires_polygons_disk", False)
+
+            row_engine = col_action.row(align=True)
+            if requires_poly:
+                row_engine.enabled = False
+            row_engine.prop(prefs, "processing_engine", text="Engine")
+
             col_action.prop(prefs, "global_prev_mesh_action", text="Selected")
+
+            if requires_poly:
+                layout.separator()
+                col_msg = layout.column(align=True)
+                col_msg.label(
+                    text="Motor forçado para Disco (I/O) automaticamente.", icon="INFO"
+                )
+                col_msg.label(
+                    text="Quads/Ngons exigem processamento em Disco.", icon="BLANK1"
+                )
 
             # --- INÍCIO DA MENSAGEM DE AVISO DINÂMICO ---
             num_selected = len(context.selected_objects)

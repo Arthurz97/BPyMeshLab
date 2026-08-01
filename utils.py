@@ -85,7 +85,7 @@ def numpy_to_blender(vertices, faces, original_name, vertex_quality=None):
             # Adicionado .ravel() para achatar a estrutura das sublistas C++ com segurança
             face_indices = np.concatenate(faces).ravel().astype(np.int32)
     else:
-        # Fallback para o Array 2D tradicional (Geralmente Triângulos)
+        # Alternativa para o Array 2D tradicional (Geralmente Triângulos)
         num_faces = len(faces)
         verts_per_face = faces.shape[1] if faces.ndim > 1 else 3
         face_sizes = np.full(num_faces, verts_per_face, dtype=np.int32)

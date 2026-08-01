@@ -30,6 +30,7 @@ UI_MAPPING = {
         "generate_resampled_uniform_mesh",
         "generate_convex_hull",
         "meshing_surface_subdivision_butterfly",
+        "meshing_surface_subdivision_catmull_clark",
     ],
 }
 
@@ -53,7 +54,8 @@ FILTER_NAMES = {
     "generate_resampled_uniform_mesh": "Uniform Mesh Resampling",
     "generate_convex_hull": "Convex Hull",
     "create_implicit_surface": "Implicit Surface",
-    "meshing_surface_subdivision_butterfly": "Subdivision Surfaces: Butterfly Subdivision",
+    "meshing_surface_subdivision_butterfly": "Subdivision Surfaces: Butterfly",
+    "meshing_surface_subdivision_catmull_clark": "Subdivision Surfaces: Catmull-Clark",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -77,4 +79,5 @@ FILTER_DESCRIPTIONS = {
     "generate_convex_hull": "TBD",
     "create_implicit_surface": "TBD",
     "meshing_surface_subdivision_butterfly": "TBD",
+    "meshing_surface_subdivision_catmull_clark": "TBD",
 }
