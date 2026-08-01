@@ -173,7 +173,7 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             col_action.use_property_decorate = False
 
             col_action.prop(prefs, "processing_engine", text="Engine")
-            col_action.prop(prefs, "global_prev_mesh_action", text="Action on Selected")
+            col_action.prop(prefs, "global_prev_mesh_action", text="Selected")
 
             # --- INÍCIO DA MENSAGEM DE AVISO DINÂMICO ---
             num_selected = len(context.selected_objects)
