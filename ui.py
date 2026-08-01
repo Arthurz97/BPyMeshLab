@@ -147,7 +147,7 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
         # Coluna da direita (Caixa preta interativa)
         col_menu = split.column(align=True)
         # Controla a altura da caixa do menu principal (1.0 é o padrão)
-        col_menu.scale_y = 1.2
+        col_menu.scale_y = 1.0
 
         if active_filter == "NONE" or not active_filter:
             col_menu.menu("MESHLAB_MT_main_menu", text=display_name)
