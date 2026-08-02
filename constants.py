@@ -33,6 +33,7 @@ UI_MAPPING = {
         "meshing_surface_subdivision_catmull_clark",
         "meshing_surface_subdivision_doo_sabin",
         "meshing_surface_subdivision_ls3_loop",
+        "meshing_surface_subdivision_loop",
     ],
 }
 
@@ -60,6 +61,7 @@ FILTER_NAMES = {
     "meshing_surface_subdivision_catmull_clark": "Subdivision Surfaces: Catmull-Clark",
     "meshing_surface_subdivision_doo_sabin": "Subdivision Surfaces: Doo-Sabin",
     "meshing_surface_subdivision_ls3_loop": "Subdivision Surfaces: LS3 Loop",
+    "meshing_surface_subdivision_loop": "Subdivision Surfaces: Loop",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -86,4 +88,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_surface_subdivision_catmull_clark": "TBD",
     "meshing_surface_subdivision_doo_sabin": "TBD",
     "meshing_surface_subdivision_ls3_loop": "TBD",
+    "meshing_surface_subdivision_loop": "TBD",
 }
