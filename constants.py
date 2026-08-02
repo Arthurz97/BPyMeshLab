@@ -31,6 +31,7 @@ UI_MAPPING = {
         "generate_convex_hull",
         "meshing_surface_subdivision_butterfly",
         "meshing_surface_subdivision_catmull_clark",
+        "meshing_surface_subdivision_doo_sabin",
     ],
 }
 
@@ -56,6 +57,7 @@ FILTER_NAMES = {
     "create_implicit_surface": "Implicit Surface",
     "meshing_surface_subdivision_butterfly": "Subdivision Surfaces: Butterfly",
     "meshing_surface_subdivision_catmull_clark": "Subdivision Surfaces: Catmull-Clark",
+    "meshing_surface_subdivision_doo_sabin": "Subdivision Surfaces: Doo-Sabin",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -80,4 +82,5 @@ FILTER_DESCRIPTIONS = {
     "create_implicit_surface": "TBD",
     "meshing_surface_subdivision_butterfly": "TBD",
     "meshing_surface_subdivision_catmull_clark": "TBD",
+    "meshing_surface_subdivision_doo_sabin": "TBD",
 }

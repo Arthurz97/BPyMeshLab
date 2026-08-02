@@ -1,4 +1,5 @@
 import bpy, os, tempfile, gc, math
+import bmesh
 import pymeshlab
 import mathutils
 import numpy as np
@@ -115,14 +116,8 @@ class MeshLabFilterBase:
                         # Cria uma cópia temporária da malha para não destruir a geometria original do usuário na Viewport
                         temp_mesh = original_obj.data.copy()
 
-                        import bmesh
-
                         bm = bmesh.new()
                         bm.from_mesh(temp_mesh)
-
-                        # Limpeza prévia: Funde vértices sobrepostos (Weld) a uma distância de 1 milímetro
-                        # Vital para fechar buracos microscópicos antes da exportação via Disco
-                        bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.001)
 
                         # Se o filtro exigir polígonos (como o Catmull-Clark), ignoramos a triangulação destrutiva
                         if not getattr(cls, "requires_polygons_disk", False):

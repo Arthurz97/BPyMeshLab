@@ -170,6 +170,17 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
 
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
+            # --- LIMPEZA DE COSTURA BOOLEANA (WELD) ---
+            # Remove vértices duplos microscópicos (0.01mm) gerados pela interseção do Exact Solver
+            import bmesh
+
+            bm = bmesh.new()
+            bm.from_mesh(host_obj.data)
+            bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.00001)
+            bm.to_mesh(host_obj.data)
+            bm.free()
+            host_obj.data.update()
+
             # OVERRIDE TEMPORÁRIO: Desliga o selectedonly para evitar a trava de proteção da Classe Mestra
             original_selectedonly = getattr(props, "selectedonly", False)
             if original_selectedonly:

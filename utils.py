@@ -16,10 +16,6 @@ def blender_to_numpy(obj, extract_selection=False):
     bm = bmesh.new()
     bm.from_mesh(mesh)
 
-    # Limpeza prévia: Funde vértices sobrepostos (Weld) a uma distância de 1 milímetro (0.001m)
-    # Garante que malhas desconexas ou resultantes de operações booleanas fiquem perfeitamente seladas
-    bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.001)
-
     bmesh.ops.triangulate(
         bm, faces=bm.faces[:], quad_method="FIXED", ngon_method="BEAUTY"
     )
