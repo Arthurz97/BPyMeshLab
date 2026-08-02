@@ -5,6 +5,7 @@
         "reportInvalidTypeForm": "none"
     },
     "files.exclude": {
-        "**/dev": true
+        "**/dev": true,
+        "**/__pycache__": true
     }
 }
