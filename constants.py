@@ -32,6 +32,7 @@ UI_MAPPING = {
         "meshing_surface_subdivision_butterfly",
         "meshing_surface_subdivision_catmull_clark",
         "meshing_surface_subdivision_doo_sabin",
+        "meshing_surface_subdivision_ls3_loop",
     ],
 }
 
@@ -58,6 +59,7 @@ FILTER_NAMES = {
     "meshing_surface_subdivision_butterfly": "Subdivision Surfaces: Butterfly",
     "meshing_surface_subdivision_catmull_clark": "Subdivision Surfaces: Catmull-Clark",
     "meshing_surface_subdivision_doo_sabin": "Subdivision Surfaces: Doo-Sabin",
+    "meshing_surface_subdivision_ls3_loop": "Subdivision Surfaces: LS3 Loop",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -83,4 +85,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_surface_subdivision_butterfly": "TBD",
     "meshing_surface_subdivision_catmull_clark": "TBD",
     "meshing_surface_subdivision_doo_sabin": "TBD",
+    "meshing_surface_subdivision_ls3_loop": "TBD",
 }
