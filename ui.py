@@ -246,20 +246,17 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
 
                 # Aplica o padrão dividido (igual ao topo) apenas para Enums e Strings
                 if prop_type in ["ENUM", "STRING"]:
-                    split = box_filter.split(factor=0.4)
+                    # Usa o sistema nativo do Blender, resolvendo o bug do título e dos dois pontos simultaneamente
+                    col_split = box_filter.column()
+                    col_split.use_property_split = True
+                    col_split.use_property_decorate = False
 
-                    col_label = split.column(align=True)
-                    col_label.alignment = "RIGHT"
-                    col_label.label(text=ui_label)
-
-                    col_prop = split.column(align=True)
                     if hasattr(
                         props, "is_property_disabled"
                     ) and props.is_property_disabled(key, context):
-                        col_prop.enabled = False
+                        col_split.enabled = False
 
-                    # text="" garante que os dois pontos (:) não apareçam nativamente
-                    col_prop.prop(props, key, text="")
+                    col_split.prop(props, key, text=ui_label)
                 else:
                     # Mantém o padrão nativo para Floats, Ints e Bools (textos dentro das caixas)
                     row = box_filter.row()
