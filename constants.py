@@ -36,6 +36,7 @@ UI_MAPPING = {
         "meshing_surface_subdivision_loop",
         "meshing_surface_subdivision_midpoint",
         "meshing_decimation_clustering",
+        "meshing_decimation_edge_collapse_for_marching_cube_meshes",
     ],
 }
 
@@ -66,6 +67,7 @@ FILTER_NAMES = {
     "meshing_surface_subdivision_loop": "Subdivision Surfaces: Loop",
     "meshing_surface_subdivision_midpoint": "Subdivision Surfaces: Midpoint",
     "meshing_decimation_clustering": "Simplification: Clustering Decimation",
+    "meshing_decimation_edge_collapse_for_marching_cube_meshes": "Simplification: Edge Collapse for Marching Cube Meshes",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -95,4 +97,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_surface_subdivision_loop": "TBD",
     "meshing_surface_subdivision_midpoint": "TBD",
     "meshing_decimation_clustering": "TBD",
+    "meshing_decimation_edge_collapse_for_marching_cube_meshes": "TBD",
 }
