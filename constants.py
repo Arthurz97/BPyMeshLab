@@ -34,6 +34,7 @@ UI_MAPPING = {
         "meshing_surface_subdivision_doo_sabin",
         "meshing_surface_subdivision_ls3_loop",
         "meshing_surface_subdivision_loop",
+        "meshing_surface_subdivision_midpoint",
     ],
 }
 
@@ -62,6 +63,7 @@ FILTER_NAMES = {
     "meshing_surface_subdivision_doo_sabin": "Subdivision Surfaces: Doo-Sabin",
     "meshing_surface_subdivision_ls3_loop": "Subdivision Surfaces: LS3 Loop",
     "meshing_surface_subdivision_loop": "Subdivision Surfaces: Loop",
+    "meshing_surface_subdivision_midpoint": "Subdivision Surfaces: Midpoint",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -89,4 +91,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_surface_subdivision_doo_sabin": "TBD",
     "meshing_surface_subdivision_ls3_loop": "TBD",
     "meshing_surface_subdivision_loop": "TBD",
+    "meshing_surface_subdivision_midpoint": "TBD",
 }
