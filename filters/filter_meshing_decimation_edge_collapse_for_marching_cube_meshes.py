@@ -4,7 +4,9 @@ from bpy.props import BoolProperty
 from ..base_filter import MeshLabFilterBase
 
 
-class MESHLAB_PG_edge_collapse_marching_cubes(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_decimation_edge_collapse_for_marching_cubes_meshes(
+    PropertyGroup, MeshLabFilterBase
+):
     pymeshlab_filter = "meshing_decimation_edge_collapse_for_marching_cube_meshes"
     requires_selection = True
     shade_flat = True
