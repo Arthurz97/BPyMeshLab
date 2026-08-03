@@ -78,15 +78,20 @@ class MeshLabFilterBase:
                 # ==========================================================
                 if engine == "MEMORY":
                     if has_mesh:
-                        # Extrai vértices, faces e matriz de seleção/cores (se exigido)
-                        vertices, faces, v_colors = utils.blender_to_numpy(
-                            original_obj, extract_selection=is_selected_only
+                        # Extrai vértices, faces, matriz de seleção e matriz escalar de qualidade
+                        vertices, faces, v_colors, v_scalars = utils.blender_to_numpy(
+                            original_obj,
+                            extract_selection=is_selected_only,
+                            extract_quality=True,
                         )
 
                         mesh_kwargs = {"vertex_matrix": vertices, "face_matrix": faces}
 
                         if is_selected_only and v_colors is not None:
                             mesh_kwargs["v_color_matrix"] = v_colors
+
+                        if v_scalars is not None:
+                            mesh_kwargs["v_scalar_array"] = v_scalars
 
                         # Injeção direta na memória C++ do PyMeshLab
                         m = pymeshlab.Mesh(**mesh_kwargs)

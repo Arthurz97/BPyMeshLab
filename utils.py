@@ -3,7 +3,7 @@ import bmesh
 import numpy as np
 
 
-def blender_to_numpy(obj, extract_selection=False):
+def blender_to_numpy(obj, extract_selection=False, extract_quality=False):
     """
     Extrai coordenadas e faces de um objeto Blender para matrizes NumPy.
     Utiliza foreach_get e numpy vectorize para máxima performance em C.
@@ -55,9 +55,17 @@ def blender_to_numpy(obj, extract_selection=False):
         v_color_matrix[:, 3] = 1.0  # Alpha
         v_color_matrix[sel_flat, 0:3] = 1.0  # RGB = Branco onde True
 
+    # --- Extração de Qualidade (Scalar/Float) ---
+    v_scalar_matrix = None
+    if extract_quality and "quality" in mesh.attributes:
+        # Extrai em 1D e converte (reshape) para 2D (N, 1) conforme exigido pela API C++
+        v_scalar_flat = np.zeros(num_verts, dtype=np.float64)
+        mesh.attributes["quality"].data.foreach_get("value", v_scalar_flat)
+        v_scalar_matrix = v_scalar_flat.reshape((num_verts, 1))
+
     obj_eval.to_mesh_clear()
 
-    return vertices_world, faces, v_color_matrix
+    return vertices_world, faces, v_color_matrix, v_scalar_matrix
 
 
 def numpy_to_blender(vertices, faces, original_name, vertex_quality=None):
