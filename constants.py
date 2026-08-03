@@ -35,6 +35,7 @@ UI_MAPPING = {
         "meshing_surface_subdivision_ls3_loop",
         "meshing_surface_subdivision_loop",
         "meshing_surface_subdivision_midpoint",
+        "meshing_decimation_clustering",
     ],
 }
 
@@ -64,6 +65,7 @@ FILTER_NAMES = {
     "meshing_surface_subdivision_ls3_loop": "Subdivision Surfaces: LS3 Loop",
     "meshing_surface_subdivision_loop": "Subdivision Surfaces: Loop",
     "meshing_surface_subdivision_midpoint": "Subdivision Surfaces: Midpoint",
+    "meshing_decimation_clustering": "Simplification: Clustering Decimation",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -92,4 +94,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_surface_subdivision_ls3_loop": "TBD",
     "meshing_surface_subdivision_loop": "TBD",
     "meshing_surface_subdivision_midpoint": "TBD",
+    "meshing_decimation_clustering": "TBD",
 }
