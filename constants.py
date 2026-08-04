@@ -38,6 +38,7 @@ UI_MAPPING = {
         "meshing_decimation_clustering",
         "meshing_decimation_edge_collapse_for_marching_cube_meshes",
         "meshing_decimation_quadric_edge_collapse",
+        "meshing_decimation_quadric_edge_collapse_with_texture",
     ],
 }
 
@@ -70,6 +71,7 @@ FILTER_NAMES = {
     "meshing_decimation_clustering": "Simplification: Clustering Decimation",
     "meshing_decimation_edge_collapse_for_marching_cube_meshes": "Simplification: Edge Collapse for Marching Cube Meshes",
     "meshing_decimation_quadric_edge_collapse": "Simplification: Quadric Edge Collapse Decimation",
+    "meshing_decimation_quadric_edge_collapse_with_texture": "Simplification: Quadric Edge Collapse Decimation (with texture)",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -101,4 +103,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_decimation_clustering": "TBD",
     "meshing_decimation_edge_collapse_for_marching_cube_meshes": "TBD",
     "meshing_decimation_quadric_edge_collapse": "TBD",
+    "meshing_decimation_quadric_edge_collapse_with_texture": "TBD",
 }

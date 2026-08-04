@@ -57,8 +57,10 @@ class MeshLabFilterBase:
         apply_prev_mesh_action = prefs.global_prev_mesh_action
         engine = prefs.processing_engine
 
-        # Trava de Segurança: Força o uso de DISCO para filtros que exigem polígonos
-        if getattr(cls, "requires_polygons_disk", False):
+        # Trava de Segurança: Força o uso de DISCO para filtros que exigem polígonos ou UVs
+        if getattr(cls, "requires_polygons_disk", False) or getattr(
+            cls, "requires_uv_disk", False
+        ):
             engine = "DISK"
 
         try:
@@ -110,11 +112,10 @@ class MeshLabFilterBase:
                 # ==========================================================
                 elif engine == "DISK":
                     if cls.requires_selection and has_mesh:
-                        ext = (
-                            "obj"
-                            if getattr(cls, "requires_polygons_disk", False)
-                            else "ply"
-                        )
+                        req_poly_flag = getattr(cls, "requires_polygons_disk", False)
+                        req_uv_flag = getattr(cls, "requires_uv_disk", False)
+
+                        ext = "obj" if (req_poly_flag or req_uv_flag) else "ply"
                         input_path = os.path.join(tmpdir, f"input.{ext}")
 
                         # --- PREPARAÇÃO TOPOLÓGICA (BMESH) PARA DISCO ---
@@ -156,15 +157,15 @@ class MeshLabFilterBase:
                         req_uv = getattr(cls, "requires_uv_disk", False)
                         requires_poly = getattr(cls, "requires_polygons_disk", False)
 
-                        if requires_poly:
-                            # ROTA OBJ: Preserva Quads, N-gons, UVs e Normais nativamente.
+                        if ext == "obj":
+                            # ROTA OBJ: Preserva Quads, N-gons OU transporta UV Maps com malha já triangulada
                             export_kwargs = {
                                 "filepath": input_path,
                                 "export_selected_objects": True,
                                 "export_normals": req_normals,
                                 "export_uv": req_uv,
                                 "export_materials": False,  # Evita poluição de arquivos .mtl
-                                "export_triangulated_mesh": False,  # A chave-mestra para manter os Quads
+                                "export_triangulated_mesh": not requires_poly,
                                 "forward_axis": "Y",
                                 "up_axis": "Z",
                             }
