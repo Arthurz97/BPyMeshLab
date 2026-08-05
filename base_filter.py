@@ -80,11 +80,13 @@ class MeshLabFilterBase:
                 # ==========================================================
                 if engine == "MEMORY":
                     if has_mesh:
-                        # Extrai vértices, faces, matriz de seleção e matriz escalar de qualidade
-                        vertices, faces, v_colors, v_scalars = utils.blender_to_numpy(
-                            original_obj,
-                            extract_selection=is_selected_only,
-                            extract_quality=True,
+                        # Extrai vértices, faces, matriz de seleção, escalar e normais
+                        vertices, faces, v_colors, v_scalars, v_normals = (
+                            utils.blender_to_numpy(
+                                original_obj,
+                                extract_selection=is_selected_only,
+                                extract_quality=True,
+                            )
                         )
 
                         mesh_kwargs = {"vertex_matrix": vertices, "face_matrix": faces}
@@ -94,6 +96,9 @@ class MeshLabFilterBase:
 
                         if v_scalars is not None:
                             mesh_kwargs["v_scalar_array"] = v_scalars
+
+                        if v_normals is not None:
+                            mesh_kwargs["v_normals_matrix"] = v_normals
 
                         # Injeção direta na memória C++ do PyMeshLab
                         m = pymeshlab.Mesh(**mesh_kwargs)
@@ -251,6 +256,9 @@ class MeshLabFilterBase:
                 # Permite que o filtro intercepte, injete ou altere parâmetros antes de enviar ao motor C++
                 if hasattr(cls, "pre_process_parameters"):
                     cls.pre_process_parameters(params, props)
+                    # Permite que o filtro execute outros algoritmos na memória C++ ANTES do filtro principal
+                if hasattr(cls, "pre_invoke_filters"):
+                    cls.pre_invoke_filters(ms, params, props)
 
                 # EXECUÇÃO: Aplica o filtro com os parâmetros mapeados
                 ms.apply_filter(cls.pymeshlab_filter, **params)
@@ -309,6 +317,14 @@ class MeshLabFilterBase:
                     if out_mesh.has_vertex_scalar():
                         out_quality = out_mesh.vertex_scalar_array()
 
+                    out_normals = None
+                    try:
+                        # O PyMeshLab não possui um booleano de checagem para normais na API atual.
+                        # Extraímos diretamente com try/except para evitar falhas caso a matriz não exista.
+                        out_normals = out_mesh.vertex_normal_matrix()
+                    except Exception:
+                        pass
+
                     # Libera a memória C++ imediatamente após extrair as matrizes
                     ms.clear()
                     del ms
@@ -317,7 +333,11 @@ class MeshLabFilterBase:
                     # Constrói o novo objeto no Blender sem tocar no disco
                     temp_name = original_obj.name if original_obj else "Mesh"
                     new_obj = utils.numpy_to_blender(
-                        out_vertices, out_faces, temp_name, vertex_quality=out_quality
+                        out_vertices,
+                        out_faces,
+                        temp_name,
+                        vertex_quality=out_quality,
+                        vertex_normals=out_normals,
                     )
 
                     # Linka o objeto gerado na cena atual e o define como ativo

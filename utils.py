@@ -63,12 +63,21 @@ def blender_to_numpy(obj, extract_selection=False, extract_quality=False):
         mesh.attributes["quality"].data.foreach_get("value", v_scalar_flat)
         v_scalar_matrix = v_scalar_flat.reshape((num_verts, 1))
 
+    # --- Extração de Normais (Vector) ---
+    v_normal_matrix = None
+    if "vertex_normals" in mesh.attributes:
+        v_normal_flat = np.zeros(num_verts * 3, dtype=np.float64)
+        mesh.attributes["vertex_normals"].data.foreach_get("vector", v_normal_flat)
+        v_normal_matrix = v_normal_flat.reshape((num_verts, 3))
+
     obj_eval.to_mesh_clear()
 
-    return vertices_world, faces, v_color_matrix, v_scalar_matrix
+    return vertices_world, faces, v_color_matrix, v_scalar_matrix, v_normal_matrix
 
 
-def numpy_to_blender(vertices, faces, original_name, vertex_quality=None):
+def numpy_to_blender(
+    vertices, faces, original_name, vertex_quality=None, vertex_normals=None
+):
     """
     Reconstrói a geometria do PyMeshLab de volta para o Blender em um novo objeto.
     Utiliza o verdadeiro foreach_set para injeção massiva de memória (C-Level).
@@ -118,6 +127,15 @@ def numpy_to_blender(vertices, faces, original_name, vertex_quality=None):
         quality_attr = mesh.attributes.new(name="quality", type="FLOAT", domain="POINT")
         quality_attr.data.foreach_set(
             "value", np.array(vertex_quality, dtype=np.float32).ravel()
+        )
+
+    # Injeção Direta de Normais (Cálculo do Motor) como Atributo Blender
+    if vertex_normals is not None and len(vertex_normals) == num_verts:
+        normal_attr = mesh.attributes.new(
+            name="vertex_normals", type="FLOAT_VECTOR", domain="POINT"
+        )
+        normal_attr.data.foreach_set(
+            "vector", np.array(vertex_normals, dtype=np.float32).ravel()
         )
 
     # 3. Limpeza de Seleção Absoluta (Vértices, Faces E Arestas)

@@ -106,6 +106,33 @@ class MESHLAB_MT_main_menu(bpy.types.Menu):
                 layout.menu(f"MESHLAB_MT_category_{idx}", text=category_name)
 
 
+class MESHLAB_OT_get_viewport_position(bpy.types.Operator):
+    bl_idname = "meshlab.get_viewport_position"
+    bl_label = "Get Viewport Pos"
+    bl_description = "Capture the current 3D Viewport camera position (X, Y, Z)."
+    bl_options = {"INTERNAL"}
+
+    target_prop: bpy.props.StringProperty()
+
+    @classmethod
+    def poll(cls, context):
+        return context.area and context.area.type == "VIEW_3D"
+
+    def execute(self, context):
+        rv3d = context.region_data
+        if rv3d:
+            # view_matrix invertida entrega a tradução exata de onde a visão da câmera está posicionada no mundo
+            loc = rv3d.view_matrix.inverted().translation
+            ui_state = context.scene.meshlab_ui_state
+            active_filter = ui_state.filter_name
+            props = getattr(context.scene, f"ml_{active_filter}", None)
+
+            if props and hasattr(props, self.target_prop):
+                setattr(props, self.target_prop, (loc.x, loc.y, loc.z))
+
+        return {"FINISHED"}
+
+
 class MESHLAB_OT_reset_filter_settings(bpy.types.Operator):
     bl_idname = "meshlab.reset_filter_settings"
     bl_label = "Reset Filter Settings"
@@ -244,9 +271,10 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             box_filter = layout.box()
             box_filter.label(text="Parameters:", icon="TOOL_SETTINGS")
 
+            cn_subbox = None
+
             # Desenha todas as propriedades da classe dinamicamente, sem necessidade de customizações
             for key in props.__class__.__annotations__.keys():
-                # Verifica se a classe do filtro pede para ocultar essa propriedade no estado atual
                 if hasattr(props, "is_property_hidden") and props.is_property_hidden(
                     key
                 ):
@@ -255,10 +283,29 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
                 ui_label = props.bl_rna.properties[key].name
                 prop_type = props.bl_rna.properties[key].type
 
+                # Lógica de criação da Sub-caixa (The Blender Way)
+                if key == "cn_enable":
+                    row = box_filter.row()
+                    if hasattr(
+                        props, "is_property_disabled"
+                    ) and props.is_property_disabled(key, context):
+                        row.enabled = False
+                    row.prop(props, key, text=ui_label)
+
+                    # Cria o recuo visual (Sub-box nativo) para os próximos parâmetros cn_
+                    cn_subbox = box_filter.box()
+                    continue
+
+                # Define o container pai (Sub-caixa se for um parâmetro cn_, senão a caixa principal)
+                container = (
+                    cn_subbox
+                    if key.startswith("cn_") and cn_subbox is not None
+                    else box_filter
+                )
+
                 # Aplica o padrão dividido (igual ao topo) apenas para Enums e Strings
                 if prop_type in ["ENUM", "STRING"]:
-                    # Usa o sistema nativo do Blender, resolvendo o bug do título e dos dois pontos simultaneamente
-                    col_split = box_filter.column()
+                    col_split = container.column()
                     col_split.use_property_split = True
                     col_split.use_property_decorate = False
 
@@ -269,12 +316,29 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
 
                     col_split.prop(props, key, text=ui_label)
                 else:
-                    # Mantém o padrão nativo para Floats, Ints e Bools (textos dentro das caixas)
-                    row = box_filter.row()
-                    # INÍCIO DO ESMAECIMENTO DINÂMICO
-                    if hasattr(
-                        props, "is_property_disabled"
-                    ) and props.is_property_disabled(key, context):
-                        row.enabled = False
-                    # FIM DO ESMAECIMENTO DINÂMICO
-                    row.prop(props, key, text=ui_label)
+                    # Intercepta propriedades de Viewport Position para adicionar o botão Get interativo
+                    if key in ["viewpos", "cn_viewpos"]:
+                        col_vec = container.column(align=True)
+                        if hasattr(
+                            props, "is_property_disabled"
+                        ) and props.is_property_disabled(key, context):
+                            col_vec.enabled = False
+
+                        # Desenha o texto limpo (sem o ':') em cima das caixas de vetor
+                        col_vec.label(text=ui_label)
+
+                        row = col_vec.row(align=True)
+                        row.prop(props, key, text="")
+
+                        op = row.operator(
+                            "meshlab.get_viewport_position", text="", icon="VIEW_CAMERA"
+                        )
+                        op.target_prop = key
+                    else:
+                        # Mantém o padrão nativo para Floats, Ints e Bools (textos dentro das caixas)
+                        row = container.row()
+                        if hasattr(
+                            props, "is_property_disabled"
+                        ) and props.is_property_disabled(key, context):
+                            row.enabled = False
+                        row.prop(props, key, text=ui_label)

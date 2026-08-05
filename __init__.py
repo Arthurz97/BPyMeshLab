@@ -12,6 +12,7 @@ core_classes = (
     preferences.MESHLAB_props_preferences,
     preferences.MESHLAB_props_ui_state,
     base_filter.MESHLAB_OT_apply_filter,
+    ui.MESHLAB_OT_get_viewport_position,
     ui.MESHLAB_OT_reset_filter_settings,
     ui.MESHLAB_OT_set_filter,
     ui.MESHLAB_MT_main_menu,
