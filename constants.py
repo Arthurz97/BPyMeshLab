@@ -40,6 +40,7 @@ UI_MAPPING = {
         "meshing_decimation_quadric_edge_collapse",
         "meshing_decimation_quadric_edge_collapse_with_texture",
         "generate_surface_reconstruction_vcg",
+        "generate_surface_reconstruction_screened_poisson",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -78,6 +79,7 @@ FILTER_NAMES = {
     "meshing_decimation_quadric_edge_collapse_with_texture": "Simplification: Quadric Edge Collapse Decimation (with texture)",
     "generate_surface_reconstruction_vcg": "Surface Reconstruction: VCG",
     "compute_normal_for_point_clouds": "Compute normals for point sets",
+    "generate_surface_reconstruction_screened_poisson": "Surface Reconstruction: Screened Poisson",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -112,4 +114,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_decimation_quadric_edge_collapse_with_texture": "TBD",
     "generate_surface_reconstruction_vcg": "TBD",
     "compute_normal_for_point_clouds": "TBD",
+    "generate_surface_reconstruction_screened_poisson": "TBD",
 }
