@@ -1,4 +1,5 @@
 import bpy
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, BoolProperty, IntProperty
 from ..base_filter import MeshLabFilterBase
@@ -104,7 +105,6 @@ class MESHLAB_PG_generate_plane_fitting_to_selection(PropertyGroup, MeshLabFilte
                 status, msg = super().apply_filter(context, props)
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
