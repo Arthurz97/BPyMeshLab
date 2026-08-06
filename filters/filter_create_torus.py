@@ -1,4 +1,6 @@
 import bpy
+import math
+import bmesh
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -38,8 +40,6 @@ class MESHLAB_PG_create_torus(PropertyGroup, MeshLabFilterBase):
         ):
             obj = context.view_layer.objects.active
             if obj and obj.type == "MESH":
-                import bmesh
-                import math
 
                 bm = bmesh.new()
                 bm.from_mesh(obj.data)
