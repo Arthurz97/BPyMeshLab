@@ -1,4 +1,6 @@
 import bpy
+import bmesh
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -65,7 +67,6 @@ class MESHLAB_PG_decimation_edge_collapse_for_marching_cubes_meshes(
                 status, msg = super().apply_filter(context, props)
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
@@ -172,7 +173,6 @@ class MESHLAB_PG_decimation_edge_collapse_for_marching_cubes_meshes(
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
             # --- LIMPEZA DE COSTURA BOOLEANA (WELD) ---
-            import bmesh
 
             bm = bmesh.new()
             bm.from_mesh(host_obj.data)
