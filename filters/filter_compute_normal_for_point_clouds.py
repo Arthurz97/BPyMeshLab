@@ -1,4 +1,5 @@
 import bpy
+import numpy as np
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, BoolProperty, FloatVectorProperty
 from ..base_filter import MeshLabFilterBase
@@ -13,7 +14,6 @@ class MESHLAB_PG_compute_normal_for_point_clouds(PropertyGroup, MeshLabFilterBas
 
     @classmethod
     def pre_process_parameters(cls, params, props):
-        import numpy as np
 
         # Converte o vetor nativo do Blender para o formato C++ exigido (numpy.ndarray)
         params["viewpos"] = np.array(props.viewpos, dtype=np.float64)
