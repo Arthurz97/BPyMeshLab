@@ -1,4 +1,6 @@
 import bpy
+import bmesh
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -65,7 +67,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
                 status, msg = super().apply_filter(context, props)
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
@@ -172,7 +173,6 @@ class MESHLAB_PG_meshing_isotropic_explicit_remeshing(PropertyGroup, MeshLabFilt
 
             # --- LIMPEZA DE COSTURA BOOLEANA (WELD) ---
             # Remove vértices duplos microscópicos (0.01mm) gerados pela interseção do Exact Solver
-            import bmesh
 
             bm = bmesh.new()
             bm.from_mesh(host_obj.data)
