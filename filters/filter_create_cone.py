@@ -1,4 +1,6 @@
 import bpy
+import bmesh
+import math
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -21,8 +23,6 @@ class MESHLAB_PG_create_cone(PropertyGroup, MeshLabFilterBase):
         if status == "FINISHED" and getattr(props, "blender_quad", False):
             obj = context.view_layer.objects.active
             if obj and obj.type == "MESH":
-                import bmesh
-                import math
 
                 bm = bmesh.new()
                 bm.from_mesh(obj.data)
