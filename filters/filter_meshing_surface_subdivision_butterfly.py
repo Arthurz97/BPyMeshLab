@@ -1,4 +1,6 @@
 import bpy
+import bmesh
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -73,7 +75,6 @@ class MESHLAB_PG_meshing_surface_subdivision_butterfly(
                 status, msg = super().apply_filter(context, props)
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
@@ -180,7 +181,6 @@ class MESHLAB_PG_meshing_surface_subdivision_butterfly(
 
             # --- LIMPEZA DE COSTURA BOOLEANA (WELD) ---
             # Remove vértices duplos microscópicos (0.01mm) gerados pela interseção do Exact Solver
-            import bmesh
 
             bm = bmesh.new()
             bm.from_mesh(host_obj.data)
