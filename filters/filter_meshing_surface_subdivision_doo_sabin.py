@@ -1,5 +1,6 @@
 import bpy
 import bmesh
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -85,7 +86,6 @@ class MESHLAB_PG_meshing_surface_subdivision_doo_sabin(
             status, msg = super().apply_filter(context, props)
 
             if preserve and status == "FINISHED" and context.active_object:
-                import mathutils
 
                 temp_matrix = mathutils.Matrix.Translation(original_matrix.translation)
                 context.active_object.data.transform(
