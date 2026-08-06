@@ -1,4 +1,5 @@
 import bpy
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import BoolProperty
 from ..base_filter import MeshLabFilterBase
@@ -81,7 +82,6 @@ class MESHLAB_PG_generate_convex_hull(PropertyGroup, MeshLabFilterBase):
                     and status == "FINISHED"
                     and context.active_object
                 ):
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
