@@ -25,13 +25,9 @@ class MESHLAB_PG_generate_surface_reconstruction_screened_poisson(
                 self, "blender_batch", False
             )
 
-        # Cascata de Esmaecimento do Pré-Filtro Embutido (Depende de ser Point Cloud)
-        if key == "cn_enable":
-            return not getattr(self, "blender_point_cloud", False)
+        # Cascata de Esmaecimento do Pré-Filtro Embutido
         if key in ["cn_k", "cn_smoothiter", "cn_flipflag", "cn_viewpos"]:
-            return not getattr(self, "blender_point_cloud", False) or not getattr(
-                self, "cn_enable", False
-            )
+            return not getattr(self, "cn_enable", False)
 
         return False
 
@@ -51,8 +47,8 @@ class MESHLAB_PG_generate_surface_reconstruction_screened_poisson(
 
     @classmethod
     def pre_invoke_filters(cls, ms, params, props):
-        # Se for Modo Point Cloud e Compute Normals estiver ativo, injeta o filtro antes
-        if props.blender_point_cloud and props.cn_enable:
+        # Injeta o cálculo de normais na memória antes do Poisson, se ativado na UI
+        if getattr(props, "cn_enable", False):
             ms.apply_filter(
                 "compute_normal_for_point_clouds",
                 k=props.cn_k,
@@ -235,14 +231,6 @@ class MESHLAB_PG_generate_surface_reconstruction_screened_poisson(
                             bpy.data.objects.remove(obj, do_unlink=True)
                     except ReferenceError:
                         pass
-
-                # Limpeza de Costura (Weld)
-                bm = bmesh.new()
-                bm.from_mesh(host_obj.data)
-                bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=0.00001)
-                bm.to_mesh(host_obj.data)
-                bm.free()
-                host_obj.data.update()
 
             bpy.data.collections.remove(temp_col)
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
