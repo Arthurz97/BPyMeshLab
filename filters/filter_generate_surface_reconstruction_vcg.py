@@ -1,4 +1,7 @@
 import bpy
+import numpy as np
+import bmesh
+import mathutils
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty, FloatVectorProperty
 from ..base_filter import MeshLabFilterBase
@@ -42,7 +45,6 @@ class MESHLAB_PG_generate_surface_reconstruction_vcg(PropertyGroup, MeshLabFilte
     def pre_invoke_filters(cls, ms, params, props):
         # Se Vertex Splatting e Compute Normals estiverem ativos, injeta o filtro antes do VCG
         if props.mergecolor and props.cn_enable:
-            import numpy as np
 
             ms.apply_filter(
                 "compute_normal_for_point_clouds",
@@ -100,7 +102,6 @@ class MESHLAB_PG_generate_surface_reconstruction_vcg(PropertyGroup, MeshLabFilte
                     and context.active_object
                     and context.active_object.type == "MESH"
                 ):
-                    import bmesh
 
                     bm = bmesh.new()
                     bm.from_mesh(context.active_object.data)
@@ -110,7 +111,6 @@ class MESHLAB_PG_generate_surface_reconstruction_vcg(PropertyGroup, MeshLabFilte
                     context.active_object.data.update()
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
@@ -232,7 +232,6 @@ class MESHLAB_PG_generate_surface_reconstruction_vcg(PropertyGroup, MeshLabFilte
                         pass
 
                 # Limpeza de Costura (Weld)
-                import bmesh
 
                 bm = bmesh.new()
                 bm.from_mesh(host_obj.data)
@@ -252,7 +251,6 @@ class MESHLAB_PG_generate_surface_reconstruction_vcg(PropertyGroup, MeshLabFilte
                 and context.active_object
                 and context.active_object.type == "MESH"
             ):
-                import bmesh
 
                 bm = bmesh.new()
                 bm.from_mesh(context.active_object.data)
