@@ -24,6 +24,10 @@ class MESHLAB_PG_generate_surface_reconstruction_screened_poisson(
             return len(context.selected_objects) > 1 and not getattr(
                 self, "blender_batch", False
             )
+        if key == "blender_point_cloud":
+            return len(context.selected_objects) <= 1 or getattr(
+                self, "blender_batch", False
+            )
 
         # Cascata de Esmaecimento do Pré-Filtro Embutido
         if key in ["cn_k", "cn_smoothiter", "cn_flipflag", "cn_viewpos"]:
@@ -289,8 +293,8 @@ class MESHLAB_PG_generate_surface_reconstruction_screened_poisson(
         default=False,
     )
     blender_point_cloud: BoolProperty(
-        name="Point Cloud Mode",
-        description="Enable this if you are reconstructing from Point Clouds (vertices only) instead of dense meshes. This ensures normals are fused and preserved correctly across multiple objects.",
+        name="Global Point Cloud (Join)",
+        description="Enable this if you are reconstructing from Point Clouds (vertices only) instead of dense meshes. It uses 'Join' instead of 'Boolean Manifold', ensuring normals are fused and preserved correctly across multiple objects.",
         default=False,
     )
 
