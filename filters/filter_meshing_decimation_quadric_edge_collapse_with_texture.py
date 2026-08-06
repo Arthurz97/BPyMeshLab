@@ -1,5 +1,8 @@
 import bpy
+import bmesh
+import mathutils
 from bpy.types import PropertyGroup
+from bpy.app.handlers import persistent
 from bpy.props import IntProperty, FloatProperty, BoolProperty
 from ..base_filter import MeshLabFilterBase
 
@@ -106,7 +109,6 @@ class MESHLAB_PG_decimation_quadric_edge_collapse_with_texture(
                 status, msg = super().apply_filter(context, props)
 
                 if preserve and status == "FINISHED" and context.active_object:
-                    import mathutils
 
                     temp_matrix = mathutils.Matrix.Translation(
                         original_matrix.translation
@@ -210,8 +212,6 @@ class MESHLAB_PG_decimation_quadric_edge_collapse_with_texture(
             bpy.data.collections.remove(temp_col)
 
             bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
-
-            import bmesh
 
             bm = bmesh.new()
             bm.from_mesh(host_obj.data)
@@ -328,8 +328,6 @@ class MESHLAB_PG_decimation_quadric_edge_collapse_with_texture(
         default=False,
     )
 
-
-from bpy.app.handlers import persistent
 
 _last_selected_mesh_names = set()
 _last_active_filter = ""
