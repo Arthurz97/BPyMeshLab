@@ -42,6 +42,10 @@ UI_MAPPING = {
         "generate_surface_reconstruction_vcg",
         "generate_surface_reconstruction_screened_poisson",
         "generate_surface_reconstruction_ball_pivoting",
+        "meshing_poly_to_tri",
+        "meshing_tri_to_quad_by_4_8_subdivision",
+        "meshing_tri_to_quad_by_smart_triangle_pairing",
+        "meshing_tri_to_quad_dominant",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -82,6 +86,10 @@ FILTER_NAMES = {
     "compute_normal_for_point_clouds": "Compute normals for point sets",
     "generate_surface_reconstruction_screened_poisson": "Surface Reconstruction: Screened Poisson",
     "generate_surface_reconstruction_ball_pivoting": "Surface Reconstruction: Ball Pivoting",
+    "meshing_poly_to_tri": "Turn into a Pure-Triangular mesh",
+    "meshing_tri_to_quad_by_4_8_subdivision": "Tri to Quad by 4-8 Subdivision",
+    "meshing_tri_to_quad_by_smart_triangle_pairing": "Tri to Quad by smart triangle pairing",
+    "meshing_tri_to_quad_dominant": "Turn into Quad-Dominant mesh",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -118,4 +126,8 @@ FILTER_DESCRIPTIONS = {
     "compute_normal_for_point_clouds": "TBD",
     "generate_surface_reconstruction_screened_poisson": "TBD",
     "generate_surface_reconstruction_ball_pivoting": "TBD",
+    "meshing_poly_to_tri": "TBD",
+    "meshing_tri_to_quad_by_4_8_subdivision": "TBD",
+    "meshing_tri_to_quad_by_smart_triangle_pairing": "TBD",
+    "meshing_tri_to_quad_dominant": "TBD",
 }
