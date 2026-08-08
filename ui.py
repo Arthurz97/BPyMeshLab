@@ -304,7 +304,7 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
                 )
 
                 # Aplica o padrão dividido (igual ao topo) apenas para Enums e Strings
-                if prop_type in ["ENUM", "STRING"]:
+                if prop_type in ["ENUM", "STRING", "POINTER"]:
                     col_split = container.column()
                     col_split.use_property_split = True
                     col_split.use_property_decorate = False

@@ -46,6 +46,10 @@ UI_MAPPING = {
         "meshing_tri_to_quad_by_4_8_subdivision",
         "meshing_tri_to_quad_by_smart_triangle_pairing",
         "meshing_tri_to_quad_dominant",
+        "generate_boolean_difference",
+        "generate_boolean_intersection",
+        "generate_boolean_union",
+        "generate_boolean_xor",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -90,6 +94,10 @@ FILTER_NAMES = {
     "meshing_tri_to_quad_by_4_8_subdivision": "Tri to Quad by 4-8 Subdivision",
     "meshing_tri_to_quad_by_smart_triangle_pairing": "Tri to Quad by smart triangle pairing",
     "meshing_tri_to_quad_dominant": "Turn into Quad-Dominant mesh",
+    "generate_boolean_difference": "Mesh Boolean: Difference",
+    "generate_boolean_intersection": "Mesh Boolean: Intersection",
+    "generate_boolean_union": "Mesh Boolean: Union",
+    "generate_boolean_xor": "Mesh Boolean: Symmetric Difference (XOR)",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -130,4 +138,8 @@ FILTER_DESCRIPTIONS = {
     "meshing_tri_to_quad_by_4_8_subdivision": "TBD",
     "meshing_tri_to_quad_by_smart_triangle_pairing": "TBD",
     "meshing_tri_to_quad_dominant": "TBD",
+    "generate_boolean_difference": "TBD",
+    "generate_boolean_intersection": "TBD",
+    "generate_boolean_union": "TBD",
+    "generate_boolean_xor": "TBD",
 }
