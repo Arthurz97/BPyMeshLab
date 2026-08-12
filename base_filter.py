@@ -157,6 +157,27 @@ class MeshLabFilterBase:
 
                         # ---- 1. EXPORTAÇÃO DINÂMICA (OBJ vs PLY) E TRANSFERÊNCIA DE SELEÇÃO ----
                         temp_color = None
+
+                        # INÍCIO DA INJEÇÃO DE COR PARA SELEÇÃO (Unificado para OBJ e PLY)
+                        if is_selected_only:
+                            # USAMOS POINT (Vértices) para garantir a leitura no PyMeshLab
+                            temp_color = temp_mesh.color_attributes.new(
+                                name="Col", type="BYTE_COLOR", domain="POINT"
+                            )
+                            temp_mesh.attributes.active_color = temp_color
+
+                            # Extrai a seleção diretamente dos vértices da malha temporária
+                            colors = [
+                                val
+                                for v in temp_mesh.vertices
+                                for val in (
+                                    (1.0, 1.0, 1.0, 1.0)
+                                    if v.select
+                                    else (0.0, 0.0, 0.0, 1.0)
+                                )
+                            ]
+                            temp_color.data.foreach_set("color", colors)
+
                         # Flags dinâmicas para evitar o rasgo de vértices (Vertex Splitting) no disco
                         req_normals = getattr(cls, "requires_normals_disk", False)
                         req_uv = getattr(cls, "requires_uv_disk", False)
@@ -169,6 +190,7 @@ class MeshLabFilterBase:
                                 "export_selected_objects": True,
                                 "export_normals": req_normals,
                                 "export_uv": req_uv,
+                                "export_colors": is_selected_only,  # O exportador OBJ usa Booleano
                                 "export_materials": False,  # Evita poluição de arquivos .mtl
                                 "export_triangulated_mesh": not requires_poly,
                                 "forward_axis": "Y",
@@ -183,32 +205,12 @@ class MeshLabFilterBase:
                                 "ascii_format": False,  # Força explicitamente o formato Binário
                                 "export_normals": req_normals,
                                 "export_uv": req_uv,
+                                "export_colors": (
+                                    "SRGB" if is_selected_only else "NONE"
+                                ),  # O exportador PLY usa Enum
                                 "forward_axis": "Y",
                                 "up_axis": "Z",
                             }
-
-                            if is_selected_only:
-                                # USAMOS POINT (Vértices) porque o PLY C++ garante essa exportação
-                                temp_color = temp_mesh.color_attributes.new(
-                                    name="Col", type="BYTE_COLOR", domain="POINT"
-                                )
-                                temp_mesh.attributes.active_color = temp_color
-
-                                # Extrai a seleção diretamente dos vértices da malha temporária
-                                colors = [
-                                    val
-                                    for v in temp_mesh.vertices
-                                    for val in (
-                                        (1.0, 1.0, 1.0, 1.0)
-                                        if v.select
-                                        else (0.0, 0.0, 0.0, 1.0)
-                                    )
-                                ]
-                                temp_color.data.foreach_set("color", colors)
-                                export_kwargs["export_colors"] = "SRGB"
-                            else:
-                                # Evita que Vertex Colors residuais causem separação da malha
-                                export_kwargs["export_colors"] = "NONE"
 
                             # Exporta dinamicamente a malha temporária passando os parâmetros seguros
                             bpy.ops.wm.ply_export(**export_kwargs)

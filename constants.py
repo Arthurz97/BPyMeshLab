@@ -53,6 +53,11 @@ UI_MAPPING = {
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
+        "meshing_invert_face_orientation",
+        "meshing_re_orient_faces_coherently",
+    ],
+    "Quality Measure and Computations": [
+        "meshing_re_orient_faces_by_geometry",
     ],
 }
 
@@ -98,6 +103,9 @@ FILTER_NAMES = {
     "generate_boolean_intersection": "Mesh Boolean: Intersection",
     "generate_boolean_union": "Mesh Boolean: Union",
     "generate_boolean_xor": "Mesh Boolean: Symmetric Difference (XOR)",
+    "meshing_re_orient_faces_by_geometry": "Reorient face normals by geometry",
+    "meshing_invert_face_orientation": "Invert Faces Orientation",
+    "meshing_re_orient_faces_coherently": "Re-Orient all faces coherently",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -142,4 +150,7 @@ FILTER_DESCRIPTIONS = {
     "generate_boolean_intersection": "TBD",
     "generate_boolean_union": "TBD",
     "generate_boolean_xor": "TBD",
+    "meshing_re_orient_faces_by_geometry": "TBD",
+    "meshing_invert_face_orientation": "TBD",
+    "meshing_re_orient_faces_coherently": "TBD",
 }
