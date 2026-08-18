@@ -61,6 +61,8 @@ UI_MAPPING = {
     ],
     "Cleaning and Repairing": [
         "meshing_remove_unreferenced_vertices",
+        "meshing_remove_connected_component_by_diameter",
+        "meshing_remove_connected_component_by_face_number",
     ],
 }
 
@@ -110,6 +112,8 @@ FILTER_NAMES = {
     "meshing_invert_face_orientation": "Invert Faces Orientation",
     "meshing_re_orient_faces_coherently": "Re-Orient all faces coherently",
     "meshing_remove_unreferenced_vertices": "Remove Unreferenced Vertices",
+    "meshing_remove_connected_component_by_diameter": "Remove Isolated pieces (wrt Diameter)",
+    "meshing_remove_connected_component_by_face_number": "Remove Isolated pieces (wrt Face Num.)",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -158,4 +162,6 @@ FILTER_DESCRIPTIONS = {
     "meshing_invert_face_orientation": "TBD",
     "meshing_re_orient_faces_coherently": "TBD",
     "meshing_remove_unreferenced_vertices": "TBD",
+    "meshing_remove_connected_component_by_diameter": "TBD",
+    "meshing_remove_connected_component_by_face_number": "TBD",
 }
