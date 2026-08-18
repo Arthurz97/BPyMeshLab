@@ -68,6 +68,7 @@ UI_MAPPING = {
         "meshing_remove_null_faces",
         "meshing_remove_t_vertices",
         "meshing_remove_vertices_by_scalar",
+        "meshing_snap_mismatched_borders",
     ],
 }
 
@@ -124,6 +125,7 @@ FILTER_NAMES = {
     "meshing_remove_null_faces": "Remove Zero Area Faces",
     "meshing_remove_t_vertices": "Remove T-Vertices",
     "meshing_remove_vertices_by_scalar": "Remove Vertices wrt Quality",
+    "meshing_snap_mismatched_borders": "Snap Mismatched Borders",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -179,4 +181,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_null_faces": "TBD",
     "meshing_remove_t_vertices": "TBD",
     "meshing_remove_vertices_by_scalar": "TBD",
+    "meshing_snap_mismatched_borders": "TBD",
 }
