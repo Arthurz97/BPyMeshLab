@@ -21,13 +21,17 @@ class MESHLAB_OT_set_filter(bpy.types.Operator):
         # Atualiza a string do filtro selecionado no momento
         context.scene.meshlab_ui_state.filter_name = self.filter_id
 
-        # Auto-switch: Muda a engine para DISK automaticamente se o filtro exigir polígonos ou UV
+        # Auto-switch: Muda a engine automaticamente de acordo com a exigência do filtro
         props = getattr(context.scene, f"ml_{self.filter_id}", None)
         if props:
             req_poly = getattr(props.__class__, "requires_polygons_disk", False)
             req_uv = getattr(props.__class__, "requires_uv_disk", False)
+            req_ram = getattr(props.__class__, "requires_ram_memory", False)
+
             if req_poly or req_uv:
                 context.scene.meshlab_prefs.processing_engine = "DISK"
+            elif req_ram:
+                context.scene.meshlab_prefs.processing_engine = "MEMORY"
 
         return {"FINISHED"}
 
@@ -208,13 +212,16 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             col_action.use_property_split = True
             col_action.use_property_decorate = False
 
-            # Trava de UI para filtros que exigem I/O em disco (Polígonos ou UVs)
+            # Trava de UI para limitações arquiteturais (Disco vs RAM)
             requires_poly = getattr(props.__class__, "requires_polygons_disk", False)
             requires_uv = getattr(props.__class__, "requires_uv_disk", False)
+            requires_ram = getattr(props.__class__, "requires_ram_memory", False)
+
             forces_disk = requires_poly or requires_uv
+            forces_ram = requires_ram
 
             row_engine = col_action.row(align=True)
-            if forces_disk:
+            if forces_disk or forces_ram:
                 row_engine.enabled = False
             row_engine.prop(prefs, "processing_engine", text="Engine")
 
@@ -235,6 +242,16 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
                         text="Coordenadas UV exigem processamento em Disco.",
                         icon="BLANK1",
                     )
+            elif forces_ram:
+                layout.separator()
+                col_msg = layout.column(align=True)
+                col_msg.label(
+                    text="Motor forçado para RAM (Memory) automaticamente.", icon="INFO"
+                )
+                col_msg.label(
+                    text="Injeção de atributos (Quality) não suportada em Disco.",
+                    icon="BLANK1",
+                )
 
             # --- INÍCIO DA MENSAGEM DE AVISO DINÂMICO ---
             num_selected = len(context.selected_objects)

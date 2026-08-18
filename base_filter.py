@@ -63,6 +63,10 @@ class MeshLabFilterBase:
         ):
             engine = "DISK"
 
+        # Trava de Segurança: Força o uso de RAM para filtros que dependem de injeção direta (ex: Scalar/Quality)
+        if getattr(cls, "requires_ram_memory", False):
+            engine = "MEMORY"
+
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
                 # Checa a preferência do filtro para definir o formato de saída do motor C++

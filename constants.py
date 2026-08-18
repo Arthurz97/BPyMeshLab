@@ -67,6 +67,7 @@ UI_MAPPING = {
         "meshing_remove_folded_faces",
         "meshing_remove_null_faces",
         "meshing_remove_t_vertices",
+        "meshing_remove_vertices_by_scalar",
     ],
 }
 
@@ -122,6 +123,7 @@ FILTER_NAMES = {
     "meshing_remove_folded_faces": "Remove Isolated Folded Faces by Edge Flip",
     "meshing_remove_null_faces": "Remove Zero Area Faces",
     "meshing_remove_t_vertices": "Remove T-Vertices",
+    "meshing_remove_vertices_by_scalar": "Remove Vertices wrt Quality",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -176,4 +178,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_folded_faces": "TBD",
     "meshing_remove_null_faces": "TBD",
     "meshing_remove_t_vertices": "TBD",
+    "meshing_remove_vertices_by_scalar": "TBD",
 }
