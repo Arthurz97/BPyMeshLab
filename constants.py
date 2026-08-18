@@ -59,6 +59,9 @@ UI_MAPPING = {
     "Quality Measure and Computations": [
         "meshing_re_orient_faces_by_geometry",
     ],
+    "Cleaning and Repairing": [
+        "meshing_remove_unreferenced_vertices",
+    ],
 }
 
 FILTER_NAMES = {
@@ -106,6 +109,7 @@ FILTER_NAMES = {
     "meshing_re_orient_faces_by_geometry": "Reorient face normals by geometry",
     "meshing_invert_face_orientation": "Invert Faces Orientation",
     "meshing_re_orient_faces_coherently": "Re-Orient all faces coherently",
+    "meshing_remove_unreferenced_vertices": "Remove Unreferenced Vertices",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -153,4 +157,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_re_orient_faces_by_geometry": "TBD",
     "meshing_invert_face_orientation": "TBD",
     "meshing_re_orient_faces_coherently": "TBD",
+    "meshing_remove_unreferenced_vertices": "TBD",
 }
