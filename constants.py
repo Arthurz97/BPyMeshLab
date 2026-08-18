@@ -63,6 +63,10 @@ UI_MAPPING = {
         "meshing_remove_unreferenced_vertices",
         "meshing_remove_connected_component_by_diameter",
         "meshing_remove_connected_component_by_face_number",
+        "meshing_remove_duplicate_faces",
+        "meshing_remove_folded_faces",
+        "meshing_remove_null_faces",
+        "meshing_remove_t_vertices",
     ],
 }
 
@@ -114,6 +118,10 @@ FILTER_NAMES = {
     "meshing_remove_unreferenced_vertices": "Remove Unreferenced Vertices",
     "meshing_remove_connected_component_by_diameter": "Remove Isolated pieces (wrt Diameter)",
     "meshing_remove_connected_component_by_face_number": "Remove Isolated pieces (wrt Face Num.)",
+    "meshing_remove_duplicate_faces": "Remove Duplicate Faces",
+    "meshing_remove_folded_faces": "Remove Isolated Folded Faces by Edge Flip",
+    "meshing_remove_null_faces": "Remove Zero Area Faces",
+    "meshing_remove_t_vertices": "Remove T-Vertices",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -164,4 +172,8 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_unreferenced_vertices": "TBD",
     "meshing_remove_connected_component_by_diameter": "TBD",
     "meshing_remove_connected_component_by_face_number": "TBD",
+    "meshing_remove_duplicate_faces": "TBD",
+    "meshing_remove_folded_faces": "TBD",
+    "meshing_remove_null_faces": "TBD",
+    "meshing_remove_t_vertices": "TBD",
 }
