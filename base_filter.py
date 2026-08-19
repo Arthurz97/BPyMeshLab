@@ -35,6 +35,13 @@ class MeshLabFilterBase:
                 "Múltiplas seleções não são suportadas. Selecione apenas 1 objeto.",
             )
 
+        # TRAVA DE SEGURANÇA: Evita crash caso o usuário tente rodar um filtro de edição em um objeto malha fantasma (sem vértices).
+        if cls.requires_selection and has_mesh and len(original_obj.data.vertices) == 0:
+            return (
+                "CANCELLED",
+                "A malha selecionada está vazia. Este filtro exige geometria pré-existente.",
+            )
+
         if cls.requires_selection and (not original_selected_objs or not has_mesh):
             return (
                 "CANCELLED",
@@ -83,7 +90,7 @@ class MeshLabFilterBase:
                 # CAMINHO 1: PROCESSAMENTO EM MEMÓRIA (NumPy)
                 # ==========================================================
                 if engine == "MEMORY":
-                    if has_mesh:
+                    if cls.requires_selection and has_mesh:
                         # Extrai vértices, faces, matriz de seleção, escalar e normais
                         vertices, faces, v_colors, v_scalars, v_normals = (
                             utils.blender_to_numpy(

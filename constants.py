@@ -24,6 +24,7 @@ UI_MAPPING = {
         "generate_plane_fitting_to_selection",
         "create_fractal_terrain",
         "create_implicit_surface",
+        "create_sphere_points",
     ],
     "Remeshing, Simplification and Reconstruction": [
         "meshing_isotropic_explicit_remeshing",
@@ -126,6 +127,7 @@ FILTER_NAMES = {
     "meshing_remove_t_vertices": "Remove T-Vertices",
     "meshing_remove_vertices_by_scalar": "Remove Vertices wrt Quality",
     "meshing_snap_mismatched_borders": "Snap Mismatched Borders",
+    "create_sphere_points": "Points on a Sphere",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -182,4 +184,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_t_vertices": "TBD",
     "meshing_remove_vertices_by_scalar": "TBD",
     "meshing_snap_mismatched_borders": "TBD",
+    "create_sphere_points": "TBD",
 }
