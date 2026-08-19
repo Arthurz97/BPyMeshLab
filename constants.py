@@ -51,6 +51,7 @@ UI_MAPPING = {
         "generate_boolean_intersection",
         "generate_boolean_union",
         "generate_boolean_xor",
+        "meshing_close_holes",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -132,6 +133,7 @@ FILTER_NAMES = {
     "create_sphere_points": "Points on a Sphere",
     "meshing_repair_non_manifold_edges": "Repair non Manifold Edges",
     "meshing_repair_non_manifold_vertices": "Repair non Manifold Vertices by splitting",
+    "meshing_close_holes": "Close Holes",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -191,4 +193,5 @@ FILTER_DESCRIPTIONS = {
     "create_sphere_points": "TBD",
     "meshing_repair_non_manifold_edges": "TBD",
     "meshing_repair_non_manifold_vertices": "TBD",
+    "meshing_close_holes": "TBD",
 }
