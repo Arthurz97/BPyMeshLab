@@ -55,6 +55,14 @@ UI_MAPPING = {
         "meshing_edge_flip_by_planar_optimization",
         "meshing_edge_flip_by_curvature_optimization",
     ],
+    "Sampling": [
+        "generate_sampling_clustered_vertex",
+        "generate_sampling_element",
+        "generate_sampling_montecarlo",
+        "generate_sampling_poisson_disk",
+        "generate_sampling_regular_recursive",
+        "generate_sampling_stratified_triangle",
+    ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
         "meshing_invert_face_orientation",
@@ -138,6 +146,12 @@ FILTER_NAMES = {
     "meshing_close_holes": "Close Holes",
     "meshing_edge_flip_by_planar_optimization": "Planar flipping optimization",
     "meshing_edge_flip_by_curvature_optimization": "Curvature flipping optimization",
+    "generate_sampling_clustered_vertex": "Clustered Vertex Sampling",
+    "generate_sampling_element": "Mesh Element Sampling",
+    "generate_sampling_montecarlo": "Montecarlo Sampling",
+    "generate_sampling_poisson_disk": "Poisson-disk Sampling",
+    "generate_sampling_regular_recursive": "Regular Recursive Sampling",
+    "generate_sampling_stratified_triangle": "Stratified Triangle Sampling",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -200,4 +214,10 @@ FILTER_DESCRIPTIONS = {
     "meshing_close_holes": "TBD",
     "meshing_edge_flip_by_planar_optimization": "TBD",
     "meshing_edge_flip_by_curvature_optimization": "TBD",
+    "generate_sampling_clustered_vertex": "TBD",
+    "generate_sampling_element": "TBD",
+    "generate_sampling_montecarlo": "TBD",
+    "generate_sampling_poisson_disk": "TBD",
+    "generate_sampling_regular_recursive": "TBD",
+    "generate_sampling_stratified_triangle": "TBD",
 }
