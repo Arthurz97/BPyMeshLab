@@ -71,6 +71,7 @@ UI_MAPPING = {
         "meshing_remove_vertices_by_scalar",
         "meshing_snap_mismatched_borders",
         "meshing_repair_non_manifold_edges",
+        "meshing_repair_non_manifold_vertices",
     ],
 }
 
@@ -130,6 +131,7 @@ FILTER_NAMES = {
     "meshing_snap_mismatched_borders": "Snap Mismatched Borders",
     "create_sphere_points": "Points on a Sphere",
     "meshing_repair_non_manifold_edges": "Repair non Manifold Edges",
+    "meshing_repair_non_manifold_vertices": "Repair non Manifold Vertices by splitting",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -188,4 +190,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_snap_mismatched_borders": "TBD",
     "create_sphere_points": "TBD",
     "meshing_repair_non_manifold_edges": "TBD",
+    "meshing_repair_non_manifold_vertices": "TBD",
 }
