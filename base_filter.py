@@ -297,187 +297,224 @@ class MeshLabFilterBase:
                 # ==========================================================
                 # RECUPERAÇÃO DA GEOMETRIA: MEMÓRIA vs DISCO
                 # ==========================================================
-                new_obj = None
+                generated_objs = []
+                extract_multi = getattr(cls, "extract_multiple_layers", False)
 
-                if engine == "MEMORY":
-                    # Extrai as matrizes processadas diretamente da memória RAM
-                    out_mesh = ms.current_mesh()
-                    out_vertices = out_mesh.vertex_matrix()
+                # Feature Flag: Se for múltiplo, extrai as camadas geradas. Se não, extrai apenas a malha atual (default).
+                target_ids = (
+                    list(range(1, ms.mesh_number()))
+                    if (extract_multi and ms.mesh_number() > 1)
+                    else [-1]
+                )
+                layer_mapping = getattr(cls, "layer_mapping", {})
 
-                    # O método polygonal_face_list() retorna a lista real de Quads/Ngons nativa do PyMeshLab.
-                    # Extração Inteligente: Avalia se usa Ngons ou Triângulos nativos
-                    out_faces = []
-                    use_polygons = False
+                for idx, m_id in enumerate(target_ids):
+                    if m_id != -1:
+                        ms.set_current_mesh(m_id)
 
-                    if hasattr(out_mesh, "polygonal_face_list"):
+                    # Proteção CRÍTICA: Ignora malhas vazias (ex: Poisson zerado pelo motor C++)
+                    # Impede o importador do Blender de tentar ler arquivos PLY/OBJ sem vértices.
+                    if ms.current_mesh().vertex_matrix().shape[0] == 0:
+                        continue
+
+                    new_obj = None
+
+                    if engine == "MEMORY":
+                        # Extrai as matrizes processadas diretamente da memória RAM
+                        out_mesh = ms.current_mesh()
+                        out_vertices = out_mesh.vertex_matrix()
+
+                        # O método polygonal_face_list() retorna a lista real de Quads/Ngons nativa do PyMeshLab.
+                        # Extração Inteligente: Avalia se usa Ngons ou Triângulos nativos
+                        out_faces = []
+                        use_polygons = False
+
+                        if hasattr(out_mesh, "polygonal_face_list"):
+                            try:
+                                poly_list = out_mesh.polygonal_face_list()
+                                if isinstance(poly_list, list) and len(poly_list) > 0:
+                                    # Checa se os polígonos englobam TODOS os vértices.
+                                    # Se sobrar vértice de fora (como os centros do Dodecaedro Sym), aborta os ngons.
+                                    used_verts = len(
+                                        np.unique(np.concatenate(poly_list))
+                                    )
+                                    if used_verts == len(out_vertices):
+                                        out_faces = poly_list
+                                        use_polygons = True
+                            except Exception:
+                                pass
+
+                        # Alternativa de segurança para a matriz de triângulos bruta
+                        if not use_polygons:
+                            out_faces = out_mesh.face_matrix()
+
+                        out_quality = None
+                        if out_mesh.has_vertex_scalar():
+                            out_quality = out_mesh.vertex_scalar_array()
+
+                        out_normals = None
                         try:
-                            poly_list = out_mesh.polygonal_face_list()
-                            if isinstance(poly_list, list) and len(poly_list) > 0:
-                                # Checa se os polígonos englobam TODOS os vértices.
-                                # Se sobrar vértice de fora (como os centros do Dodecaedro Sym), aborta os ngons.
-                                used_verts = len(np.unique(np.concatenate(poly_list)))
-                                if used_verts == len(out_vertices):
-                                    out_faces = poly_list
-                                    use_polygons = True
+                            # O PyMeshLab não possui um booleano de checagem para normais na API atual.
+                            # Extraímos diretamente com try/except para evitar falhas caso a matriz não exista.
+                            out_normals = out_mesh.vertex_normal_matrix()
                         except Exception:
                             pass
 
-                    # Alternativa de segurança para a matriz de triângulos bruta
-                    if not use_polygons:
-                        out_faces = out_mesh.face_matrix()
+                        # Constrói o novo objeto no Blender sem tocar no disco
+                        temp_name = original_obj.name if original_obj else "Mesh"
+                        new_obj = utils.numpy_to_blender(
+                            out_vertices,
+                            out_faces,
+                            temp_name,
+                            vertex_quality=out_quality,
+                            vertex_normals=out_normals,
+                        )
 
-                    out_quality = None
-                    if out_mesh.has_vertex_scalar():
-                        out_quality = out_mesh.vertex_scalar_array()
+                        # Linka o objeto gerado na cena atual e o define como ativo
+                        context.collection.objects.link(new_obj)
 
-                    out_normals = None
-                    try:
-                        # O PyMeshLab não possui um booleano de checagem para normais na API atual.
-                        # Extraímos diretamente com try/except para evitar falhas caso a matriz não exista.
-                        out_normals = out_mesh.vertex_normal_matrix()
-                    except Exception:
-                        pass
+                        if idx == 0:
+                            bpy.ops.object.select_all(action="DESELECT")
+                        new_obj.select_set(True)
+                        context.view_layer.objects.active = new_obj
 
-                    # Libera a memória C++ imediatamente após extrair as matrizes
-                    ms.clear()
-                    del ms
-                    gc.collect()
+                    elif engine == "DISK":
+                        # Resgata a flag localmente para evitar erro de escopo no Pylance
+                        use_ply = getattr(cls, "prefer_ply_disk", False)
 
-                    # Constrói o novo objeto no Blender sem tocar no disco
-                    temp_name = original_obj.name if original_obj else "Mesh"
-                    new_obj = utils.numpy_to_blender(
-                        out_vertices,
-                        out_faces,
-                        temp_name,
-                        vertex_quality=out_quality,
-                        vertex_normals=out_normals,
-                    )
+                        # Evita sobrescrever o mesmo arquivo no loop de múltiplas extrações
+                        loop_output = (
+                            output_path.replace(".ply", f"_{m_id}.ply").replace(
+                                ".obj", f"_{m_id}.obj"
+                            )
+                            if m_id != -1
+                            else output_path
+                        )
 
-                    # Linka o objeto gerado na cena atual e o define como ativo
-                    context.collection.objects.link(new_obj)
-                    bpy.ops.object.select_all(action="DESELECT")
+                        # Salva o resultado temporariamente no disco
+                        if use_ply:
+                            ms.save_current_mesh(loop_output)
+                        else:
+                            # Força a API C++ a preservar Quads/Ngons ao invés de triangular no OBJ
+                            ms.save_current_mesh(loop_output, save_polygonal=True)
+
+                        if not os.path.exists(loop_output):
+                            continue  # Pula se falhou no disco silenciosamente
+
+                        # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo correspondente
+                        # O uso explícito de Y Forward e Z Up desativa a conversão automática de eixos do Blender.
+                        # Isso impede que o importador adicione rotações escondidas de 90 graus na matrix_world,
+                        # garantindo que as matrizes de primitivas, planos e subdivisões funcionem perfeitamente.
+                        if use_ply:
+                            bpy.ops.wm.ply_import(
+                                filepath=loop_output, forward_axis="Y", up_axis="Z"
+                            )
+                        else:
+                            bpy.ops.wm.obj_import(
+                                filepath=loop_output, forward_axis="Y", up_axis="Z"
+                            )
+
+                        if context.selected_objects:
+                            new_obj = context.selected_objects[0]
+
+                            # Limpa a seleção da malha vinda do disco também
+                            if new_obj.type == "MESH":
+                                m_data = new_obj.data
+
+                                # FORÇA O BLENDER A CALCULAR AS ARESTAS DO PLY ANTES DA LIMPEZA
+                                m_data.update(calc_edges=True)
+
+                                m_data.vertices.foreach_set(
+                                    "select", np.zeros(len(m_data.vertices), dtype=bool)
+                                )
+                                m_data.polygons.foreach_set(
+                                    "select", np.zeros(len(m_data.polygons), dtype=bool)
+                                )
+                                m_data.edges.foreach_set(
+                                    "select", np.zeros(len(m_data.edges), dtype=bool)
+                                )
+
+                                # SALVA O ESTADO LIMPO
+                                m_data.update()
+                        else:
+                            continue
+
+                    if cls.requires_selection and has_mesh:
+                        # RESTAURAÇÃO DE MATRIZ: Se o objeto original tinha escala ou rotação aplicadas em Object Mode,
+                        # a exportação/importação bagunça isso. Esse bloco injeta a World Matrix exata do original.
+
+                        preserve = getattr(props, "blender_preserve_transforms", False)
+
+                        if preserve:
+                            new_obj.data.transform(original_obj.matrix_world.inverted())
+                            new_obj.matrix_world = original_obj.matrix_world.copy()
+                            # Força o Blender a manter os mesmos números limpos na UI
+                            new_obj.rotation_euler = original_obj.rotation_euler.copy()
+                            new_obj.scale = original_obj.scale.copy()
+                        else:
+                            loc = original_obj.matrix_world.translation
+                            new_matrix = mathutils.Matrix.Translation(loc)
+                            new_obj.data.transform(new_matrix.inverted())
+                            new_obj.matrix_world = new_matrix
+
+                        # NOMEAÇÃO AUTOMÁTICA (Filtros de edição ou geração):
+                        if hasattr(cls, "custom_name") and cls.custom_name:
+                            new_obj.name = f"{cls.custom_name}_bpymeshlab"
+                        else:
+                            base_name = original_obj.name.split("_bpymeshlab")[0]
+                            # Se for filtro múltiplo, busca o nome no dicionário layer_mapping usando a ID da malha
+                            if extract_multi:
+                                suffix = layer_mapping.get(m_id, f"Layer_{m_id}")
+                                new_obj.name = f"{base_name}_{suffix}"
+                            else:
+                                new_obj.name = f"{base_name}_bpymeshlab"
+                    else:
+                        # NOMEAÇÃO AUTOMÁTICA E ROTAÇÃO PARA PRIMITIVAS (Filtros de Criação)
+                        obj_name = cls.pymeshlab_filter.replace("create_", "").title()
+                        new_obj.name = f"{obj_name}_bpymeshlab"
+                        new_obj.location = context.scene.cursor.location
+
+                        # Aplicação da Rotação Corrigida Positiva para compensar o eixo Y-up gerado pelo PyMeshLab
+                        new_obj.rotation_euler = (math.radians(90), 0, 0)
+                        new_obj.scale = (1, 1, 1)
+
+                        # RESET: Apply Transform (Rotate & Scale) para resetar a orientação base no Blender
+                        context.view_layer.objects.active = new_obj
+                        new_obj.select_set(True)
+                        bpy.ops.object.transform_apply(
+                            location=False, rotation=True, scale=True
+                        )
+
+                    new_obj.data.update()
+
+                    # CONFIGURAÇÃO DE ATIVIDADE: Define o recém-criado como ativo na cena.
                     new_obj.select_set(True)
                     context.view_layer.objects.active = new_obj
 
-                elif engine == "DISK":
-                    # Resgata a flag localmente para evitar erro de escopo no Pylance
-                    use_ply = getattr(cls, "prefer_ply_disk", False)
+                    # LIMPEZA DE ATRIBUTOS: O PyMeshLab/PLY pode gerar sujeira como normais travadas ou UVs residuais.
+                    if new_obj.type == "MESH" and new_obj.data:
+                        for attr in cls.remove_attributes:
+                            if attr in new_obj.data.attributes:
+                                new_obj.data.attributes.remove(
+                                    new_obj.data.attributes[attr]
+                                )
 
-                    # Salva o resultado temporariamente no disco
-                    if use_ply:
-                        ms.save_current_mesh(output_path)
-                    else:
-                        # Força a API C++ a preservar Quads/Ngons ao invés de triangular no OBJ
-                        ms.save_current_mesh(output_path, save_polygonal=True)
+                    # SHADE FLAT / SMOOTH: Controle de suavização das normais no Blender.
+                    if getattr(props, "blender_smooth", False):
+                        bpy.ops.object.shade_smooth(keep_sharp_edges=True)
+                    elif cls.shade_flat:
+                        bpy.ops.object.shade_flat()
+
+                    generated_objs.append(new_obj)
+
+                # LIMPEZA DA MEMÓRIA C++ (Realizada de forma garantida após o loop de extração)
+                # Também isolada do loop para não deletar a memória antes das outras extrações.
+                try:
                     ms.clear()
                     del ms
                     gc.collect()
-
-                    if not os.path.exists(output_path):
-                        return (
-                            "CANCELLED",
-                            "O motor C++ falhou silenciosamente e nenhuma malha foi gerada no disco.",
-                        )
-
-                    # IMPORTAÇÃO DA MALHA PROCESSADA via importador nativo correspondente
-                    # O uso explícito de Y Forward e Z Up desativa a conversão automática de eixos do Blender.
-                    # Isso impede que o importador adicione rotações escondidas de 90 graus na matrix_world,
-                    # garantindo que as matrizes de primitivas, planos e subdivisões funcionem perfeitamente.
-                    if use_ply:
-                        bpy.ops.wm.ply_import(
-                            filepath=output_path, forward_axis="Y", up_axis="Z"
-                        )
-                    else:
-                        bpy.ops.wm.obj_import(
-                            filepath=output_path, forward_axis="Y", up_axis="Z"
-                        )
-
-                    if context.selected_objects:
-                        new_obj = context.selected_objects[0]
-
-                        # Limpa a seleção da malha vinda do disco também
-                        if new_obj.type == "MESH":
-                            m_data = new_obj.data
-
-                            # FORÇA O BLENDER A CALCULAR AS ARESTAS DO PLY ANTES DA LIMPEZA
-                            m_data.update(calc_edges=True)
-
-                            m_data.vertices.foreach_set(
-                                "select", np.zeros(len(m_data.vertices), dtype=bool)
-                            )
-                            m_data.polygons.foreach_set(
-                                "select", np.zeros(len(m_data.polygons), dtype=bool)
-                            )
-                            m_data.edges.foreach_set(
-                                "select", np.zeros(len(m_data.edges), dtype=bool)
-                            )
-
-                            # SALVA O ESTADO LIMPO
-                            m_data.update()
-                    else:
-                        return "CANCELLED", "Failed to import the processed mesh."
-
-                if cls.requires_selection and has_mesh:
-                    # RESTAURAÇÃO DE MATRIZ: Se o objeto original tinha escala ou rotação aplicadas em Object Mode,
-                    # a exportação/importação bagunça isso. Esse bloco injeta a World Matrix exata do original.
-
-                    preserve = getattr(props, "blender_preserve_transforms", False)
-
-                    if preserve:
-                        new_obj.data.transform(original_obj.matrix_world.inverted())
-                        new_obj.matrix_world = original_obj.matrix_world.copy()
-                        # Força o Blender a manter os mesmos números limpos na UI
-                        new_obj.rotation_euler = original_obj.rotation_euler.copy()
-                        new_obj.scale = original_obj.scale.copy()
-                    else:
-                        loc = original_obj.matrix_world.translation
-                        new_matrix = mathutils.Matrix.Translation(loc)
-                        new_obj.data.transform(new_matrix.inverted())
-                        new_obj.matrix_world = new_matrix
-
-                    # NOMEAÇÃO AUTOMÁTICA (Filtros de edição ou geração):
-                    if hasattr(cls, "custom_name") and cls.custom_name:
-                        new_obj.name = f"{cls.custom_name}_bpymeshlab"
-                    else:
-                        base_name = original_obj.name.split("_bpymeshlab")[0]
-                        new_obj.name = f"{base_name}_bpymeshlab"
-                else:
-                    # NOMEAÇÃO AUTOMÁTICA E ROTAÇÃO PARA PRIMITIVAS (Filtros de Criação)
-                    obj_name = cls.pymeshlab_filter.replace("create_", "").title()
-                    new_obj.name = f"{obj_name}_bpymeshlab"
-                    new_obj.location = context.scene.cursor.location
-
-                    # Aplicação da Rotação Corrigida Positiva para compensar o eixo Y-up gerado pelo PyMeshLab
-                    new_obj.rotation_euler = (math.radians(90), 0, 0)
-                    new_obj.scale = (1, 1, 1)
-
-                    # RESET: Apply Transform (Rotate & Scale) para resetar a orientação base no Blender
-                    context.view_layer.objects.active = new_obj
-                    new_obj.select_set(True)
-                    bpy.ops.object.transform_apply(
-                        location=False, rotation=True, scale=True
-                    )
-
-                new_obj.data.update()
-
-                # CONFIGURAÇÃO DE ATIVIDADE: Define o recém-criado como ativo na cena.
-                bpy.ops.object.select_all(action="DESELECT")
-                new_obj.select_set(True)
-                context.view_layer.objects.active = new_obj
-
-                # LIMPEZA DE ATRIBUTOS: O PyMeshLab/PLY pode gerar sujeira como normais travadas ou UVs residuais.
-                if new_obj.type == "MESH" and new_obj.data:
-                    for attr in cls.remove_attributes:
-                        if attr in new_obj.data.attributes:
-                            new_obj.data.attributes.remove(
-                                new_obj.data.attributes[attr]
-                            )
-
-                # SHADE FLAT / SMOOTH: Controle de suavização das normais no Blender.
-                if getattr(props, "blender_smooth", False):
-                    bpy.ops.object.shade_smooth(keep_sharp_edges=True)
-                elif cls.shade_flat:
-                    bpy.ops.object.shade_flat()
+                except Exception:
+                    pass
 
                 # AÇÃO SOBRE O OBJETO ANTERIOR (Keep, Hide, Delete)
                 if apply_prev_mesh_action in ["HIDE", "DELETE"]:

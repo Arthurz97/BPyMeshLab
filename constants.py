@@ -62,6 +62,8 @@ UI_MAPPING = {
         "generate_sampling_poisson_disk",
         "generate_sampling_regular_recursive",
         "generate_sampling_stratified_triangle",
+        "generate_sampling_volumetric",
+        "generate_sampling_voronoi",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -152,6 +154,8 @@ FILTER_NAMES = {
     "generate_sampling_poisson_disk": "Poisson-disk Sampling",
     "generate_sampling_regular_recursive": "Regular Recursive Sampling",
     "generate_sampling_stratified_triangle": "Stratified Triangle Sampling",
+    "generate_sampling_volumetric": "Volumetric Sampling",
+    "generate_sampling_voronoi": "Voronoi Sampling",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -220,4 +224,6 @@ FILTER_DESCRIPTIONS = {
     "generate_sampling_poisson_disk": "TBD",
     "generate_sampling_regular_recursive": "TBD",
     "generate_sampling_stratified_triangle": "TBD",
+    "generate_sampling_volumetric": "TBD",
+    "generate_sampling_voronoi": "TBD",
 }
