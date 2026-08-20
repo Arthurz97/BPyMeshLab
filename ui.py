@@ -152,6 +152,14 @@ class MESHLAB_OT_reset_filter_settings(bpy.types.Operator):
             for key in props.bl_rna.properties.keys():
                 if key not in ["rna_type", "name"]:
                     props.property_unset(key)
+
+            # --- FIX: Sincroniza as flags da classe após o reset ---
+            # O property_unset do Blender não dispara as funções 'update' das properties.
+            # Por isso, injetamos o estado resetado diretamente nas variáveis da Classe Mestra.
+            if hasattr(props, "blender_polygonal"):
+                props.__class__.requires_polygons_disk = props.blender_polygonal
+                props.__class__.prefer_ply_disk = not props.blender_polygonal
+
         return {"FINISHED"}
 
 

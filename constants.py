@@ -72,6 +72,12 @@ UI_MAPPING = {
         "meshing_invert_face_orientation",
         "meshing_re_orient_faces_coherently",
     ],
+    "Smoothing, Fairing and Deformation": [
+        "apply_coord_taubin_smoothing",
+        "apply_coord_two_steps_smoothing",
+        "apply_coord_depth_smoothing",
+        "apply_coord_fractal_displacement",
+    ],
     "Quality Measure and Computations": [
         "meshing_re_orient_faces_by_geometry",
     ],
@@ -160,6 +166,10 @@ FILTER_NAMES = {
     "generate_sampling_voronoi": "Voronoi Sampling",
     "generate_simplified_point_cloud": "Point Cloud Simplification",
     "generate_solid_wireframe": "Create Solid Wireframe",
+    "apply_coord_taubin_smoothing": "Taubin Smooth",
+    "apply_coord_two_steps_smoothing": "TwoStep Smooth",
+    "apply_coord_depth_smoothing": "Depth Smooth",
+    "apply_coord_fractal_displacement": "Fractal Displacement",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -232,4 +242,8 @@ FILTER_DESCRIPTIONS = {
     "generate_sampling_voronoi": "TBD",
     "generate_simplified_point_cloud": "TBD",
     "generate_solid_wireframe": "TBD",
+    "apply_coord_taubin_smoothing": "TBD",
+    "apply_coord_two_steps_smoothing": "TBD",
+    "apply_coord_depth_smoothing": "TBD",
+    "apply_coord_fractal_displacement": "TBD",
 }
