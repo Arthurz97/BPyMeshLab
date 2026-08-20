@@ -54,6 +54,7 @@ UI_MAPPING = {
         "meshing_close_holes",
         "meshing_edge_flip_by_planar_optimization",
         "meshing_edge_flip_by_curvature_optimization",
+        "generate_solid_wireframe",
     ],
     "Sampling": [
         "generate_sampling_clustered_vertex",
@@ -158,6 +159,7 @@ FILTER_NAMES = {
     "generate_sampling_volumetric": "Volumetric Sampling",
     "generate_sampling_voronoi": "Voronoi Sampling",
     "generate_simplified_point_cloud": "Point Cloud Simplification",
+    "generate_solid_wireframe": "Create Solid Wireframe",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -229,4 +231,5 @@ FILTER_DESCRIPTIONS = {
     "generate_sampling_volumetric": "TBD",
     "generate_sampling_voronoi": "TBD",
     "generate_simplified_point_cloud": "TBD",
+    "generate_solid_wireframe": "TBD",
 }

@@ -27,8 +27,9 @@ class MESHLAB_OT_set_filter(bpy.types.Operator):
             req_poly = getattr(props.__class__, "requires_polygons_disk", False)
             req_uv = getattr(props.__class__, "requires_uv_disk", False)
             req_ram = getattr(props.__class__, "requires_ram_memory", False)
+            force_disk = getattr(props.__class__, "forces_disk_only", False)
 
-            if req_poly or req_uv:
+            if req_poly or req_uv or force_disk:
                 context.scene.meshlab_prefs.processing_engine = "DISK"
             elif req_ram:
                 context.scene.meshlab_prefs.processing_engine = "MEMORY"
@@ -216,8 +217,9 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
             requires_poly = getattr(props.__class__, "requires_polygons_disk", False)
             requires_uv = getattr(props.__class__, "requires_uv_disk", False)
             requires_ram = getattr(props.__class__, "requires_ram_memory", False)
+            force_disk = getattr(props.__class__, "forces_disk_only", False)
 
-            forces_disk = requires_poly or requires_uv
+            forces_disk = requires_poly or requires_uv or force_disk
             forces_ram = requires_ram
 
             row_engine = col_action.row(align=True)
@@ -240,6 +242,11 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
                 elif requires_uv:
                     col_msg.label(
                         text="Coordenadas UV exigem processamento em Disco.",
+                        icon="BLANK1",
+                    )
+                elif force_disk:
+                    col_msg.label(
+                        text="Este algoritmo exige processamento em Disco.",
                         icon="BLANK1",
                     )
             elif forces_ram:

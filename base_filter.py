@@ -64,9 +64,11 @@ class MeshLabFilterBase:
         apply_prev_mesh_action = prefs.global_prev_mesh_action
         engine = prefs.processing_engine
 
-        # Trava de Segurança: Força o uso de DISCO para filtros que exigem polígonos ou UVs
-        if getattr(cls, "requires_polygons_disk", False) or getattr(
-            cls, "requires_uv_disk", False
+        # Trava de Segurança: Força o uso de DISCO para filtros que exigem polígonos, UVs ou disco exclusivo
+        if (
+            getattr(cls, "requires_polygons_disk", False)
+            or getattr(cls, "requires_uv_disk", False)
+            or getattr(cls, "forces_disk_only", False)
         ):
             engine = "DISK"
 
