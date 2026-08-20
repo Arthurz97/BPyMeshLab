@@ -64,6 +64,7 @@ UI_MAPPING = {
         "generate_sampling_stratified_triangle",
         "generate_sampling_volumetric",
         "generate_sampling_voronoi",
+        "generate_simplified_point_cloud",
     ],
     "Normals, Curvatures and Orientation": [
         "compute_normal_for_point_clouds",
@@ -156,6 +157,7 @@ FILTER_NAMES = {
     "generate_sampling_stratified_triangle": "Stratified Triangle Sampling",
     "generate_sampling_volumetric": "Volumetric Sampling",
     "generate_sampling_voronoi": "Voronoi Sampling",
+    "generate_simplified_point_cloud": "Point Cloud Simplification",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -226,4 +228,5 @@ FILTER_DESCRIPTIONS = {
     "generate_sampling_stratified_triangle": "TBD",
     "generate_sampling_volumetric": "TBD",
     "generate_sampling_voronoi": "TBD",
+    "generate_simplified_point_cloud": "TBD",
 }
