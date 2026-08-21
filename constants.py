@@ -7,6 +7,9 @@
 # ==============================================================================
 
 UI_MAPPING = {
+    "Selection": [
+        "meshing_remove_all_faces",
+    ],
     "Create New Mesh": [
         "create_cube",
         "create_sphere",
@@ -190,6 +193,7 @@ FILTER_NAMES = {
     "apply_coord_developability_of_mesh": "Make mesh developable",
     "meshing_cut_along_crease_edges": "Cut mesh along crease edges",
     "meshing_remove_duplicate_vertices": "Remove Duplicate Vertices",
+    "meshing_remove_all_faces": "Delete ALL Faces",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -276,4 +280,5 @@ FILTER_DESCRIPTIONS = {
     "apply_coord_developability_of_mesh": "TBD",
     "meshing_cut_along_crease_edges": "TBD",
     "meshing_remove_duplicate_vertices": "TBD",
+    "meshing_remove_all_faces": "TBD",
 }
