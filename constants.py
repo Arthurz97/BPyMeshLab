@@ -57,6 +57,7 @@ UI_MAPPING = {
         "generate_solid_wireframe",
         "apply_coord_cubic_stylization",
         "apply_coord_developability_of_mesh",
+        "meshing_cut_along_crease_edges",
     ],
     "Sampling": [
         "generate_sampling_clustered_vertex",
@@ -186,6 +187,7 @@ FILTER_NAMES = {
     "apply_coord_unsharp_mask": "UnSharp Mask Geometry",
     "apply_coord_cubic_stylization": "Cubic stylization",
     "apply_coord_developability_of_mesh": "Make mesh developable",
+    "meshing_cut_along_crease_edges": "Cut mesh along crease edges",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -270,4 +272,5 @@ FILTER_DESCRIPTIONS = {
     "apply_coord_unsharp_mask": "TBD",
     "apply_coord_cubic_stylization": "TBD",
     "apply_coord_developability_of_mesh": "TBD",
+    "meshing_cut_along_crease_edges": "TBD",
 }
