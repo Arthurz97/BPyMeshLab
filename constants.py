@@ -77,6 +77,12 @@ UI_MAPPING = {
         "apply_coord_two_steps_smoothing",
         "apply_coord_depth_smoothing",
         "apply_coord_fractal_displacement",
+        "apply_coord_hc_laplacian_smoothing",
+        "apply_coord_laplacian_smoothing",
+        "apply_coord_laplacian_smoothing_surface_preserving",
+        "apply_coord_random_displacement",
+        "apply_coord_laplacian_smoothing_scale_dependent",
+        "apply_coord_unsharp_mask",
     ],
     "Quality Measure and Computations": [
         "meshing_re_orient_faces_by_geometry",
@@ -170,6 +176,12 @@ FILTER_NAMES = {
     "apply_coord_two_steps_smoothing": "TwoStep Smooth",
     "apply_coord_depth_smoothing": "Depth Smooth",
     "apply_coord_fractal_displacement": "Fractal Displacement",
+    "apply_coord_hc_laplacian_smoothing": "HC Laplacian Smooth",
+    "apply_coord_laplacian_smoothing": "Laplacian Smooth",
+    "apply_coord_laplacian_smoothing_surface_preserving": "Laplacian Smooth (surface preserving)",
+    "apply_coord_random_displacement": "Random Vertex Displacement",
+    "apply_coord_laplacian_smoothing_scale_dependent": "ScaleDependent Laplacian Smooth",
+    "apply_coord_unsharp_mask": "UnSharp Mask Geometry",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -246,4 +258,10 @@ FILTER_DESCRIPTIONS = {
     "apply_coord_two_steps_smoothing": "TBD",
     "apply_coord_depth_smoothing": "TBD",
     "apply_coord_fractal_displacement": "TBD",
+    "apply_coord_hc_laplacian_smoothing": "TBD",
+    "apply_coord_laplacian_smoothing": "TBD",
+    "apply_coord_laplacian_smoothing_surface_preserving": "TBD",
+    "apply_coord_random_displacement": "TBD",
+    "apply_coord_laplacian_smoothing_scale_dependent": "TBD",
+    "apply_coord_unsharp_mask": "TBD",
 }
