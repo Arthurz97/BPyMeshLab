@@ -106,6 +106,7 @@ UI_MAPPING = {
         "meshing_repair_non_manifold_edges",
         "meshing_repair_non_manifold_vertices",
         "meshing_remove_duplicate_vertices",
+        "meshing_merge_close_vertices",
     ],
 }
 
@@ -194,6 +195,7 @@ FILTER_NAMES = {
     "meshing_cut_along_crease_edges": "Cut mesh along crease edges",
     "meshing_remove_duplicate_vertices": "Remove Duplicate Vertices",
     "meshing_remove_all_faces": "Delete ALL Faces",
+    "meshing_merge_close_vertices": "Merge Close Vertices",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -281,4 +283,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_cut_along_crease_edges": "TBD",
     "meshing_remove_duplicate_vertices": "TBD",
     "meshing_remove_all_faces": "TBD",
+    "meshing_merge_close_vertices": "TBD",
 }
