@@ -61,6 +61,7 @@ UI_MAPPING = {
         "apply_coord_cubic_stylization",
         "apply_coord_developability_of_mesh",
         "meshing_cut_along_crease_edges",
+        "meshing_refine_by_function",
     ],
     "Sampling": [
         "generate_sampling_clustered_vertex",
@@ -196,6 +197,7 @@ FILTER_NAMES = {
     "meshing_remove_duplicate_vertices": "Remove Duplicate Vertices",
     "meshing_remove_all_faces": "Delete ALL Faces",
     "meshing_merge_close_vertices": "Merge Close Vertices",
+    "meshing_refine_by_function": "Refine User-Defined",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -284,4 +286,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_duplicate_vertices": "TBD",
     "meshing_remove_all_faces": "TBD",
     "meshing_merge_close_vertices": "TBD",
+    "meshing_refine_by_function": "TBD",
 }
