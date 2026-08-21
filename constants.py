@@ -56,6 +56,7 @@ UI_MAPPING = {
         "meshing_edge_flip_by_curvature_optimization",
         "generate_solid_wireframe",
         "apply_coord_cubic_stylization",
+        "apply_coord_developability_of_mesh",
     ],
     "Sampling": [
         "generate_sampling_clustered_vertex",
@@ -184,6 +185,7 @@ FILTER_NAMES = {
     "apply_coord_laplacian_smoothing_scale_dependent": "ScaleDependent Laplacian Smooth",
     "apply_coord_unsharp_mask": "UnSharp Mask Geometry",
     "apply_coord_cubic_stylization": "Cubic stylization",
+    "apply_coord_developability_of_mesh": "Make mesh developable",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -267,4 +269,5 @@ FILTER_DESCRIPTIONS = {
     "apply_coord_laplacian_smoothing_scale_dependent": "TBD",
     "apply_coord_unsharp_mask": "TBD",
     "apply_coord_cubic_stylization": "TBD",
+    "apply_coord_developability_of_mesh": "TBD",
 }
