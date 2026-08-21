@@ -102,6 +102,7 @@ UI_MAPPING = {
         "meshing_snap_mismatched_borders",
         "meshing_repair_non_manifold_edges",
         "meshing_repair_non_manifold_vertices",
+        "meshing_remove_duplicate_vertices",
     ],
 }
 
@@ -188,6 +189,7 @@ FILTER_NAMES = {
     "apply_coord_cubic_stylization": "Cubic stylization",
     "apply_coord_developability_of_mesh": "Make mesh developable",
     "meshing_cut_along_crease_edges": "Cut mesh along crease edges",
+    "meshing_remove_duplicate_vertices": "Remove Duplicate Vertices",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -273,4 +275,5 @@ FILTER_DESCRIPTIONS = {
     "apply_coord_cubic_stylization": "TBD",
     "apply_coord_developability_of_mesh": "TBD",
     "meshing_cut_along_crease_edges": "TBD",
+    "meshing_remove_duplicate_vertices": "TBD",
 }
