@@ -1,10 +1,11 @@
-import bpy
 from bpy.types import PropertyGroup
-from bpy.props import FloatProperty, StringProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase
+from bpy.props import FloatProperty, StringProperty
+from ..base_filter import MeshLabFilterBase, MeshLabSmoothProp
 
 
-class MESHLAB_PG_create_implicit_surface(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_create_implicit_surface(
+    PropertyGroup, MeshLabSmoothProp, MeshLabFilterBase
+):
     pymeshlab_filter = "create_implicit_surface"
     requires_selection = False
     ignore_selection_count = True
@@ -52,9 +53,4 @@ class MESHLAB_PG_create_implicit_surface(PropertyGroup, MeshLabFilterBase):
         name="Function =",
         description="This expression is evaluated for each voxel of the grid. The surface passing through the zero valued points of this field is then extracted using marching cube.",
         default="x*x+y*y+z*z-0.5",
-    )
-    blender_smooth: BoolProperty(
-        name="Shade Smooth",
-        description="Render and display faces smooth, using interpolated vertex normals.",
-        default=False,
     )

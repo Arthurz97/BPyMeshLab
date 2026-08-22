@@ -1,10 +1,11 @@
-import bpy
 from bpy.types import PropertyGroup
-from bpy.props import IntProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase
+from bpy.props import IntProperty
+from ..base_filter import MeshLabFilterBase, MeshLabSmoothProp
 
 
-class MESHLAB_PG_create_noisy_isosurface(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_create_noisy_isosurface(
+    PropertyGroup, MeshLabSmoothProp, MeshLabFilterBase
+):
     pymeshlab_filter = "create_noisy_isosurface"
     requires_selection = False
     ignore_selection_count = True
@@ -17,9 +18,4 @@ class MESHLAB_PG_create_noisy_isosurface(PropertyGroup, MeshLabFilterBase):
         description="Resolution of the side of the cubic grid used for the volume creation.",
         default=64,
         min=2,
-    )
-    blender_smooth: BoolProperty(
-        name="Shade Smooth",
-        description="Render and display faces smooth, using interpolated vertex normals.",
-        default=False,
     )

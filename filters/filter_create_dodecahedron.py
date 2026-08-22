@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import PropertyGroup
 from bpy.props import BoolProperty
 from ..base_filter import MeshLabFilterBase

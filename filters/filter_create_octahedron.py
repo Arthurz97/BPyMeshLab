@@ -1,4 +1,3 @@
-import bpy
 from bpy.types import PropertyGroup
 from ..base_filter import MeshLabFilterBase
 

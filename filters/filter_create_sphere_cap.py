@@ -1,10 +1,9 @@
-import bpy
 from bpy.types import PropertyGroup
-from bpy.props import FloatProperty, IntProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase
+from bpy.props import FloatProperty, IntProperty
+from ..base_filter import MeshLabFilterBase, MeshLabSmoothProp
 
 
-class MESHLAB_PG_create_sphere_cap(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_create_sphere_cap(PropertyGroup, MeshLabSmoothProp, MeshLabFilterBase):
     pymeshlab_filter = "create_sphere_cap"
     requires_selection = False
     ignore_selection_count = True
@@ -28,9 +27,4 @@ class MESHLAB_PG_create_sphere_cap(PropertyGroup, MeshLabFilterBase):
         default=3,
         min=0,
         max=8,
-    )
-    blender_smooth: BoolProperty(
-        name="Shade Smooth",
-        description="Render and display faces smooth, using interpolated vertex normals.",
-        default=False,
     )

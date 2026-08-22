@@ -1,10 +1,12 @@
 import bpy
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase
+from ..base_filter import MeshLabFilterBase, MeshLabSmoothProp
 
 
-class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_create_fractal_terrain(
+    PropertyGroup, MeshLabSmoothProp, MeshLabFilterBase
+):
     pymeshlab_filter = "create_fractal_terrain"
     requires_selection = False
     ignore_selection_count = True
@@ -88,11 +90,6 @@ class MESHLAB_PG_create_fractal_terrain(PropertyGroup, MeshLabFilterBase):
     saveasquality: BoolProperty(
         name="Save as vertex quality",
         description="Saves the perturbation value as a generic FLOAT attribute on vertices (can be accessed via Geometry/Shader nodes).",
-        default=False,
-    )
-    blender_smooth: BoolProperty(
-        name="Shade Smooth",
-        description="Render and display faces smooth, using interpolated vertex normals.",
         default=False,
     )
     blender_quad: BoolProperty(

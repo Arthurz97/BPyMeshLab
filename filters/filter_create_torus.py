@@ -3,10 +3,10 @@ import math
 import bmesh
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase
+from ..base_filter import MeshLabFilterBase, MeshLabSmoothProp
 
 
-class MESHLAB_PG_create_torus(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_create_torus(PropertyGroup, MeshLabSmoothProp, MeshLabFilterBase):
     pymeshlab_filter = "create_torus"
     requires_selection = False
     ignore_selection_count = True
@@ -86,11 +86,6 @@ class MESHLAB_PG_create_torus(PropertyGroup, MeshLabFilterBase):
         description="Number of sides of the polygonal approximation of the torus section",
         default=12,
         min=3,
-    )
-    blender_smooth: BoolProperty(
-        name="Shade Smooth",
-        description="Render and display faces smooth, using interpolated vertex normals.",
-        default=False,
     )
     blender_quad: BoolProperty(
         name="Quad",

@@ -305,8 +305,21 @@ class MESHLAB_PT_main_panel(bpy.types.Panel):
 
             cn_subbox = None
 
-            # Desenha todas as propriedades da classe dinamicamente, sem necessidade de customizações
-            for key in props.__class__.__annotations__.keys():
+            # Desenha todas as propriedades da classe dinamicamente, extraindo também de Mixins herdados
+            all_keys = []
+            for c in reversed(props.__class__.__mro__):
+                if hasattr(c, "__annotations__"):
+                    all_keys.extend(c.__annotations__.keys())
+
+            # Remove duplicatas preservando a ordem (Mixin base -> Filtro filho)
+            unique_keys = list(dict.fromkeys(all_keys))
+
+            # Garante que botões estéticos como o Shade Smooth fiquem sempre no final do painel
+            if "blender_smooth" in unique_keys:
+                unique_keys.remove("blender_smooth")
+                unique_keys.append("blender_smooth")
+
+            for key in unique_keys:
                 if hasattr(props, "is_property_hidden") and props.is_property_hidden(
                     key
                 ):

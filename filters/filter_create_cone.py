@@ -1,4 +1,3 @@
-import bpy
 import bmesh
 import math
 from bpy.types import PropertyGroup
