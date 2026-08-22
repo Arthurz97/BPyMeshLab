@@ -398,7 +398,11 @@ class MeshLabFilterBase:
                             ms.save_current_mesh(loop_output)
                         else:
                             # Força a API C++ a preservar Quads/Ngons ao invés de triangular no OBJ
-                            ms.save_current_mesh(loop_output, save_polygonal=True)
+                            ms.save_current_mesh(
+                                loop_output,
+                                save_polygonal=True,
+                                save_wedge_texcoord=True,
+                            )
 
                         if not os.path.exists(loop_output):
                             continue  # Pula se falhou no disco silenciosamente

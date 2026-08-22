@@ -109,6 +109,9 @@ UI_MAPPING = {
         "meshing_remove_duplicate_vertices",
         "meshing_merge_close_vertices",
     ],
+    "Texture": [
+        "generate_voronoi_atlas_parametrization",
+    ],
 }
 
 FILTER_NAMES = {
@@ -198,6 +201,7 @@ FILTER_NAMES = {
     "meshing_remove_all_faces": "Delete ALL Faces",
     "meshing_merge_close_vertices": "Merge Close Vertices",
     "meshing_refine_by_function": "Refine User-Defined",
+    "generate_voronoi_atlas_parametrization": "Parametrization: Voronoi Atlas",
 }
 
 FILTER_DESCRIPTIONS = {
@@ -287,4 +291,5 @@ FILTER_DESCRIPTIONS = {
     "meshing_remove_all_faces": "TBD",
     "meshing_merge_close_vertices": "TBD",
     "meshing_refine_by_function": "TBD",
+    "generate_voronoi_atlas_parametrization": "TBD",
 }
