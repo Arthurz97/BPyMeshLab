@@ -1,16 +1,19 @@
-import bpy
 import numpy as np
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, BoolProperty, FloatVectorProperty
-from ..base_filter import MeshLabFilterBase
+from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps
 
 
-class MESHLAB_PG_compute_normal_for_point_clouds(PropertyGroup, MeshLabFilterBase):
+class MESHLAB_PG_compute_normal_for_point_clouds(
+    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase
+):
     pymeshlab_filter = "compute_normal_for_point_clouds"
     requires_selection = True
-    ignore_selection_count = False
     shade_flat = False
     remove_attributes = []
+
+    batch_support = True
+    global_mode = "NONE"
 
     @classmethod
     def pre_process_parameters(cls, params, props):

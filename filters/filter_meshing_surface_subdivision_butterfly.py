@@ -1,10 +1,10 @@
 from bpy.types import PropertyGroup
 from bpy.props import IntProperty, FloatProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps
+from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps, MeshLabSmoothProp
 
 
 class MESHLAB_PG_meshing_surface_subdivision_butterfly(
-    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase
+    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase, MeshLabSmoothProp
 ):
     pymeshlab_filter = "meshing_surface_subdivision_butterfly"
     requires_selection = True

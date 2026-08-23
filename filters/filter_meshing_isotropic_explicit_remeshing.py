@@ -1,10 +1,10 @@
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, IntProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps
+from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps, MeshLabSmoothProp
 
 
 class MESHLAB_PG_meshing_isotropic_explicit_remeshing(
-    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase
+    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase, MeshLabSmoothProp
 ):
     pymeshlab_filter = "meshing_isotropic_explicit_remeshing"
     requires_selection = True

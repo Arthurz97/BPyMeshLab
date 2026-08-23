@@ -26,7 +26,7 @@ def set_blender_batch(self, value):
     self["blender_batch"] = value
 
 
-class MeshLabBatchGlobalProps(MeshLabSmoothProp):
+class MeshLabBatchGlobalProps:
     blender_batch: bpy.props.BoolProperty(
         name="Batch Process",
         description="If checked, processes each selected object individually. If unchecked, generates a single global volume englobing all objects.",

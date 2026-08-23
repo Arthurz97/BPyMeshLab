@@ -1,11 +1,11 @@
 import pymeshlab
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty, BoolProperty
-from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps
+from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps, MeshLabSmoothProp
 
 
 class MESHLAB_PG_generate_resampled_uniform_mesh(
-    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase
+    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase, MeshLabSmoothProp
 ):
     pymeshlab_filter = "generate_resampled_uniform_mesh"
     requires_selection = True

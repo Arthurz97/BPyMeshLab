@@ -1,10 +1,10 @@
 from bpy.types import PropertyGroup
 from bpy.props import FloatProperty
-from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps
+from ..base_filter import MeshLabFilterBase, MeshLabBatchGlobalProps, MeshLabSmoothProp
 
 
 class MESHLAB_PG_meshing_decimation_clustering(
-    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase
+    PropertyGroup, MeshLabBatchGlobalProps, MeshLabFilterBase, MeshLabSmoothProp
 ):
     pymeshlab_filter = "meshing_decimation_clustering"
     requires_selection = True
