@@ -6,12 +6,14 @@ import tempfile
 import os
 from bpy.types import PropertyGroup
 from bpy.props import BoolProperty, PointerProperty
-from ..base_filter import MeshLabFilterBase
+from ..base_filter import MeshLabFilterBase, MeshLabPreserveTransformsProp
 from .. import utils
 
 
-class MESHLAB_PG_generate_boolean_union(PropertyGroup, MeshLabFilterBase):
-    pymeshlab_filter = "generate_boolean_union"
+class MESHLAB_PG_generate_boolean_intersection(
+    PropertyGroup, MeshLabPreserveTransformsProp, MeshLabFilterBase
+):
+    pymeshlab_filter = "generate_boolean_intersection"
     requires_selection = True
     ignore_selection_count = False
     shade_flat = True
@@ -197,13 +199,8 @@ class MESHLAB_PG_generate_boolean_union(PropertyGroup, MeshLabFilterBase):
         if overall_status != "FINISHED":
             return overall_status, error_msg
 
-        return overall_status, "Mesh Boolean: Union aplicado com sucesso."
+        return overall_status, "Mesh Boolean: Intersection aplicado com sucesso."
 
-    blender_preserve_transforms: BoolProperty(
-        name="Preserve Transforms",
-        description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
-        default=False,
-    )
     second_mesh_object: PointerProperty(
         type=bpy.types.Object,
         name="Object",

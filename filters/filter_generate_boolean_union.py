@@ -6,24 +6,24 @@ import tempfile
 import os
 from bpy.types import PropertyGroup
 from bpy.props import BoolProperty, PointerProperty
-from ..base_filter import MeshLabFilterBase
+from ..base_filter import MeshLabFilterBase, MeshLabPreserveTransformsProp
 from .. import utils
 
 
-class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
-    pymeshlab_filter = "generate_boolean_difference"
+class MESHLAB_PG_generate_boolean_union(
+    PropertyGroup, MeshLabPreserveTransformsProp, MeshLabFilterBase
+):
+    pymeshlab_filter = "generate_boolean_union"
     requires_selection = True
     ignore_selection_count = False
     shade_flat = True
     remove_attributes = ["custom_normal", "sharp_edge", "sharp_face"]
     prefer_ply_disk = True
 
-    # Variável de classe para hospedar o segundo objeto e transferi-lo para o gancho pre_invoke
     _temp_second_obj = None
 
     @classmethod
     def pre_process_parameters(cls, params, props):
-        # Remove a propriedade do Blender para evitar que a API C++ acuse erro de parâmetro inválido
         if "second_mesh_object" in params:
             del params["second_mesh_object"]
 
@@ -32,7 +32,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
         engine = bpy.context.scene.meshlab_prefs.processing_engine
         target_obj = cls._temp_second_obj
 
-        # INJEÇÃO DA SEGUNDA MALHA
         if engine == "MEMORY":
             vertices, faces, _, v_scalars, v_normals = utils.blender_to_numpy(
                 target_obj, extract_selection=False, extract_quality=True
@@ -75,7 +74,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
                     obj.select_set(True)
                 bpy.context.view_layer.objects.active = active_before
 
-        # Define os operandos exatos. 0 = Ativo | 1 = Conta-Gotas
         params["first_mesh"] = 0
         params["second_mesh"] = 1
 
@@ -120,7 +118,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
         overall_status = "FINISHED"
         error_msg = ""
 
-        # --- 1. Preparação do First Mesh (Ativo) ---
         bpy.ops.object.select_all(action="DESELECT")
         temp_first_obj = original_first_obj.copy()
         temp_first_obj.data = original_first_obj.data.copy()
@@ -136,7 +133,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
         original_scale = temp_first_obj.scale.copy()
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
-        # --- 2. Preparação do Second Mesh (Conta-gotas) ---
         bpy.ops.object.select_all(action="DESELECT")
         temp_second_obj = original_second_obj.copy()
         temp_second_obj.data = original_second_obj.data.copy()
@@ -148,7 +144,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
         bpy.ops.object.convert(target="MESH")
         bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 
-        # Triangulação da Segunda Malha Segura (Para a Rota de I/O PLY)
         engine = prefs.processing_engine
         if engine == "DISK":
             bm = bmesh.new()
@@ -162,14 +157,12 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
 
         cls._temp_second_obj = temp_second_obj
 
-        # --- 3. Execução da Classe Mestra ---
         bpy.ops.object.select_all(action="DESELECT")
         temp_first_obj.select_set(True)
         context.view_layer.objects.active = temp_first_obj
 
         status, msg = super().apply_filter(context, props)
 
-        # --- 4. Restauração de Transformação e Matriz ---
         if preserve and status == "FINISHED" and context.active_object:
             temp_matrix = mathutils.Matrix.Translation(original_matrix.translation)
             context.active_object.data.transform(
@@ -183,7 +176,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
             overall_status = status
             error_msg = msg
 
-        # --- 5. Limpeza de Temporários ---
         if temp_first_obj.name in bpy.data.objects:
             bpy.data.objects.remove(temp_first_obj, do_unlink=True)
         if temp_second_obj.name in bpy.data.objects:
@@ -196,7 +188,6 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
 
         prefs.global_prev_mesh_action = original_action
 
-        # --- 6. Ação sobre o Original ---
         if overall_status == "FINISHED" and original_action in ["HIDE", "DELETE"]:
             for obj_to_action in [original_first_obj, original_second_obj]:
                 if obj_to_action:
@@ -208,15 +199,8 @@ class MESHLAB_PG_generate_boolean_difference(PropertyGroup, MeshLabFilterBase):
         if overall_status != "FINISHED":
             return overall_status, error_msg
 
-        return overall_status, "Mesh Boolean: Difference aplicado com sucesso."
+        return overall_status, "Mesh Boolean: Union aplicado com sucesso."
 
-    # --- PARÂMETROS DA INTERFACE ---
-
-    blender_preserve_transforms: BoolProperty(
-        name="Preserve Transforms",
-        description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
-        default=False,
-    )
     second_mesh_object: PointerProperty(
         type=bpy.types.Object,
         name="Object",
