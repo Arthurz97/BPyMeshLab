@@ -26,13 +26,7 @@ def set_blender_batch(self, value):
     self["blender_batch"] = value
 
 
-class MeshLabBatchGlobalProps:
-    blender_batch: bpy.props.BoolProperty(
-        name="Batch Process",
-        description="If checked, processes each selected object individually. If unchecked, generates a single global volume englobing all objects.",
-        get=get_blender_batch,
-        set=set_blender_batch,
-    )
+class MeshLabPreserveTransformsProp:
     blender_preserve_transforms: bpy.props.BoolProperty(
         name="Preserve Transforms",
         description="Restores the original Rotation and Scale to the final object. If unchecked, applied transforms are used.",
@@ -40,16 +34,39 @@ class MeshLabBatchGlobalProps:
     )
 
     def is_property_disabled(self, key, context):
-        if key == "blender_batch":
-            # Se o filtro não suportar Global, esmaece (desabilita) o botão para impedir cliques
-            if getattr(self.__class__, "global_mode", "NONE") == "NONE":
-                return True
-            return len(context.selected_objects) <= 1
         if key == "blender_preserve_transforms":
             return len(context.selected_objects) > 1 and not getattr(
                 self, "blender_batch", False
             )
+
+        if hasattr(super(), "is_property_disabled"):
+            return super().is_property_disabled(key, context)
         return False
+
+
+class MeshLabBatchOnlyProp:
+    blender_batch: bpy.props.BoolProperty(
+        name="Batch Process",
+        description="If checked, processes each selected object individually. If unchecked, generates a single global volume englobing all objects.",
+        get=get_blender_batch,
+        set=set_blender_batch,
+    )
+
+    def is_property_disabled(self, key, context):
+        if key == "blender_batch":
+            if getattr(self.__class__, "global_mode", "NONE") == "NONE":
+                return True
+            return len(context.selected_objects) <= 1
+
+        if hasattr(super(), "is_property_disabled"):
+            return super().is_property_disabled(key, context)
+        return False
+
+
+# A classe original que os 17 filtros já usam.
+# A ordem das classes na herança faz o Blender ler o Batch por último e desenhá-lo em cima na UI.
+class MeshLabBatchGlobalProps(MeshLabPreserveTransformsProp, MeshLabBatchOnlyProp):
+    pass
 
 
 class MeshLabFilterBase:
