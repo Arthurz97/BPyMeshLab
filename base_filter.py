@@ -17,7 +17,12 @@ class MeshLabSmoothProp:
 
 def get_blender_batch(self):
     # Se o filtro não suportar Global, a UI força o botão a ficar marcado (True)
-    if getattr(self.__class__, "global_mode", "NONE") == "NONE":
+    mode = (
+        self.__class__.get_global_mode(self)
+        if hasattr(self.__class__, "get_global_mode")
+        else getattr(self.__class__, "global_mode", "NONE")
+    )
+    if mode == "NONE":
         return True
     return self.get("blender_batch", False)
 
@@ -54,7 +59,12 @@ class MeshLabBatchOnlyProp:
 
     def is_property_disabled(self, key, context):
         if key == "blender_batch":
-            if getattr(self.__class__, "global_mode", "NONE") == "NONE":
+            mode = (
+                self.__class__.get_global_mode(self)
+                if hasattr(self.__class__, "get_global_mode")
+                else getattr(self.__class__, "global_mode", "NONE")
+            )
+            if mode == "NONE":
                 return True
             return len(context.selected_objects) <= 1
 
@@ -82,6 +92,12 @@ class MeshLabFilterBase:
 
     @classmethod
     def apply_filter(cls, context, props):
+        current_global_mode = (
+            cls.get_global_mode(props)
+            if hasattr(cls, "get_global_mode")
+            else cls.global_mode
+        )
+
         if context.active_object and context.active_object.mode != "OBJECT":
             bpy.ops.object.mode_set(mode="OBJECT")
 
@@ -98,7 +114,7 @@ class MeshLabFilterBase:
         if (
             len(original_objs) > 1
             and not cls.batch_support
-            and cls.global_mode == "NONE"
+            and current_global_mode == "NONE"
             and not getattr(cls, "ignore_selection_count", False)
         ):
             return (
@@ -120,7 +136,7 @@ class MeshLabFilterBase:
         if (
             is_batch
             or len(original_objs) == 1
-            or (not is_batch and cls.global_mode == "NONE")
+            or (not is_batch and current_global_mode == "NONE")
         ):
             for obj in original_objs:
                 bpy.ops.object.select_all(action="DESELECT")
@@ -195,7 +211,7 @@ class MeshLabFilterBase:
             temp_objs = []
             temp_col = None
 
-            if cls.global_mode == "BOOLEAN":
+            if current_global_mode == "BOOLEAN":
                 temp_col = bpy.data.collections.new("Temp_Boolean_Collection")
                 context.scene.collection.children.link(temp_col)
 
@@ -203,7 +219,7 @@ class MeshLabFilterBase:
                 new_obj = obj.copy()
                 new_obj.data = obj.data.copy()
 
-                if cls.global_mode == "BOOLEAN":
+                if current_global_mode == "BOOLEAN":
                     temp_col.objects.link(new_obj)
                 else:
                     context.collection.objects.link(new_obj)
@@ -220,7 +236,7 @@ class MeshLabFilterBase:
 
             host_obj = None
 
-            if cls.global_mode == "JOIN":
+            if current_global_mode == "JOIN":
                 bpy.ops.object.select_all(action="DESELECT")
                 for obj in temp_objs:
                     obj.select_set(True)
@@ -228,7 +244,7 @@ class MeshLabFilterBase:
                 bpy.ops.object.join()
                 host_obj = context.active_object
 
-            elif cls.global_mode == "BOOLEAN":
+            elif current_global_mode == "BOOLEAN":
                 host_mesh = bpy.data.meshes.new("Host_Mesh")
                 host_obj = bpy.data.objects.new("Host_Obj", host_mesh)
                 context.collection.objects.link(host_obj)
@@ -276,7 +292,7 @@ class MeshLabFilterBase:
 
             # OVERRIDE TEMPORÁRIO PARA BOOLEANOS DE FILTROS QUE USAM SELECTEDONLY
             original_selectedonly = getattr(props, "selectedonly", False)
-            if original_selectedonly and cls.global_mode == "BOOLEAN":
+            if original_selectedonly and current_global_mode == "BOOLEAN":
                 props.selectedonly = False
 
             status, msg = cls._execute_core_filter(context, props, [host_obj])
@@ -289,7 +305,7 @@ class MeshLabFilterBase:
             ):
                 cls.post_process_mesh(context, context.active_object)
 
-            if original_selectedonly and cls.global_mode == "BOOLEAN":
+            if original_selectedonly and current_global_mode == "BOOLEAN":
                 props.selectedonly = True
 
             if host_obj:
@@ -299,7 +315,7 @@ class MeshLabFilterBase:
                 except ReferenceError:
                     pass
 
-            if cls.global_mode == "JOIN":
+            if current_global_mode == "JOIN":
                 for obj in temp_objs:
                     try:
                         if obj.name in bpy.data.objects:
@@ -323,7 +339,7 @@ class MeshLabFilterBase:
             if status != "FINISHED":
                 return status, msg
 
-            return status, f"Processamento Global ({cls.global_mode}) concluído."
+            return status, f"Processamento Global ({current_global_mode}) concluído."
 
     @classmethod
     def _execute_core_filter(cls, context, props, current_objs):
