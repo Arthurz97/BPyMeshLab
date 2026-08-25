@@ -59,13 +59,6 @@ class MeshLabBatchOnlyProp:
 
     def is_property_disabled(self, key, context):
         if key == "blender_batch":
-            mode = (
-                self.__class__.get_global_mode(self)
-                if hasattr(self.__class__, "get_global_mode")
-                else getattr(self.__class__, "global_mode", "NONE")
-            )
-            if mode == "NONE":
-                return True
             return len(context.selected_objects) <= 1
 
         if hasattr(super(), "is_property_disabled"):
